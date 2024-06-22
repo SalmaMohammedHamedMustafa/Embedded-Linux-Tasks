@@ -1,6 +1,10 @@
 import os
 def get_env_var (variable_name):
-    return os.getenv(variable_name)
+    variable_value = os.getenv(variable_name)
+    if variable_value:
+        return variable_value
+    else:
+        print("couldn't find the variable")
 
 
 
