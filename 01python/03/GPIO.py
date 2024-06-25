@@ -33,4 +33,3 @@ if __name__ == "__main__":
     GPIO_PORT_dir(1,input)
     GPIO_PORT_dir(2,output)
     print(f"DDRA after {bin(DDRA)}")
-
