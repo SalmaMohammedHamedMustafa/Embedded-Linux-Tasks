@@ -93,6 +93,48 @@ class EmployeeDatabase:
         
         print(f"Employee with ID {ID} has been deleted successfully.")
     
+    def edit_employee(self, ID, new_job=None, new_salary=None):
+        """
+        Edits the job title and/or salary of an existing employee based on the provided ID.
+        
+        Parameters:
+        ID: The ID of the employee to edit.
+        new_job: The new job title of the employee. Defaults to None.
+        new_salary : The new salary of the employee. Defaults to None.
+        
+        Returns:
+        None
+        """
+        employees = []
+        
+        # Read all employees from the CSV file into a list
+        with open(self.database, 'r') as file:
+            reader = csv.reader(file)
+            employees = list(reader)
+        
+        # Check if the ID is valid and edit the employee details
+        found = False
+        for employee in employees:
+            if employee[0] == str(ID):
+                if new_job:
+                    employee[2] = new_job
+                if new_salary:
+                    employee[3] = new_salary
+                found = True
+                break
+        
+        if not found:
+            print(f"Employee with ID {ID} not found.")
+            return
+        
+        # Write the updated list of employees back to the CSV file
+        with open(self.database, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerows(employees)
+        
+        print(f"Employee with ID {ID} has been edited successfully.")
+        self.print_employee_data(ID)
+    
     def menu(self):
         """
         Displays a menu and handles user input to perform operations on the database.
@@ -105,9 +147,10 @@ class EmployeeDatabase:
             print("1. Add New Employee")
             print("2. Print Employee Data")
             print("3. Delete Employee")
-            print("4. Exit")
+            print("4. Edit Employee")
+            print("5. Exit")
             
-            choice = input("Enter your choice (1-4): ")
+            choice = input("Enter your choice (1-5): ")
             
             if choice == '1':
                 name = input("Enter the employee name: ")
@@ -121,10 +164,16 @@ class EmployeeDatabase:
                 employee_id = int(input("Enter the employee ID to delete: "))
                 self.delete_employee(employee_id)
             elif choice == '4':
+                employee_id = int(input("Enter the employee ID to edit: "))
+                new_job = input("Enter the new job title (leave blank to keep current): ")
+                new_salary = input("Enter the new salary (leave blank to keep current): ")
+                new_salary = int(new_salary) if new_salary else None
+                self.edit_employee(employee_id, new_job or None, new_salary)
+            elif choice == '5':
                 print("Exiting program.")
                 break
             else:
-                print("Invalid choice. Please enter a number from 1 to 4.")
+                print("Invalid choice. Please enter a number from 1 to 5.")
 
 if __name__ == "__main__":
     database_path = 'database.csv'
