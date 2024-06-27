@@ -1,4 +1,8 @@
 def count_fours(input_list):
+    """
+    parameters:
+    list
+    """
     return input_list.count(4)
 
 
