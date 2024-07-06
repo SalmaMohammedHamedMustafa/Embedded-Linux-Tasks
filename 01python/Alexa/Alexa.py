@@ -13,6 +13,9 @@ class voice_assistant:
     recognizer = sr.Recognizer()
   
     def record_audio(self):
+        """
+        Records audio from the microphone.
+        """
         with sr.Microphone() as source:
             print("Listening...")
             self.recognizer.adjust_for_ambient_noise(source)
@@ -20,6 +23,15 @@ class voice_assistant:
         return audio
 
     def recognize_speech(self, audio):
+        """
+        Converts recorded audio into text using Google's Speech Recognition API.
+        
+        Parameters:
+        audio (AudioData): Audio data captured from record_audio().
+        
+        Returns:
+        string: Recognized text from the audio input.
+        """
         text = ""
         try:
             text = self.recognizer.recognize_google(audio, language="ar-EG")
@@ -31,11 +43,20 @@ class voice_assistant:
         return text
 
     def speak(self, text):
+        """
+        Converts text into speech using Google Text-to-Speech (gTTS) and plays the generated speech.
+        
+        Parameters:
+        text (string): Text to be spoken aloud.
+        """
         tts = gTTS(text=text, lang='ar', slow=False)
         tts.save("audio.mp3")
         playsound.playsound("audio.mp3")
 
     def open_link(self):
+        """
+        Prompts the user to choose a website to open (Facebook, Google, YouTube, Twitter) and opens it in a web browser.
+        """
         self.speak('اختار الموقع')
         print("Say...")
         audio_data = self.record_audio()
@@ -54,12 +75,21 @@ class voice_assistant:
             print("Invalid choice. Please try again.")
 
     def get_current_time(self):
+        """
+        Retrieves and speaks the current time in "HH:MM:SS" format.
+        """
         now = datetime.now()
         current_time = now.strftime("%H:%M:%S")
         print(current_time)
         self.speak(current_time)
 
     def greeting(self, text):
+        """
+        Responds with a greeting based on recognized text input.
+        
+        Parameters:
+        text (string): Recognized text input.
+        """
         if text in ['صباح الخير', 'صباح الفل', 'صباح النور']:
             self.speak('صباح النور')
         elif text in ['مساء الخير', 'مساء الفل', 'مساء النور']:
@@ -68,6 +98,9 @@ class voice_assistant:
             self.speak('اهلا')
 
     def Alexa(self):
+        """
+        Main function for the voice assistant, handling different recognized commands.
+        """
         print("Say something...")
         audio_data = self.record_audio()
         print("Recognizing speech...")
