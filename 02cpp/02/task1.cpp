@@ -1,7 +1,11 @@
 #include <iostream>
 
 typedef int ArrType;
-
+/*
+finds the maximum of an array of any type
+@param the array , the size of the array
+@return the maximum of the array
+*/
 ArrType FindMax (ArrType arr[],int size)
 {
     int Max =0;
