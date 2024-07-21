@@ -1,3 +1,3 @@
 # Embedded Linux Diploma 
 
-Material and tasks of my Embedded Linux Journey.
+Material and tasks of my embedded linux journey.
