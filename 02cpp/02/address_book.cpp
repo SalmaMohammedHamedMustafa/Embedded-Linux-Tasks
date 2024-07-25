@@ -8,47 +8,69 @@ struct Contact {
     std::string phone;
 };
 
-class AdressBook
+class AddressBook
 {
     private:
     std::vector<Contact> contacts;
-    public:
+    void NameSetter(Contact& WantedContact);
+    void PhoneSetter(Contact& WantedContact);
+    std::string Namegetter(const Contact& WantedContact) const;
+    std::string Phonegetter(const Contact& WantedContact) const;
     void AddContact();
     void UpdateContact();
-    void SearchContact ();
+    void SearchContact();
     void displayMenu();
     void ListContacts();
     void DeleteContact();
     void DeleteAllContacts();
+    public:
     void run();
-
 };
 
-void AdressBook::ListContacts() {
+void AddressBook::NameSetter(Contact& WantedContact)
+{
+    std::cout << "Enter name: ";
+    std::cin >> WantedContact.name;
+}
+
+void AddressBook::PhoneSetter(Contact& WantedContact)
+{
+    std::cout << "Enter phone: ";
+    std::cin >> WantedContact.phone;
+}
+
+std::string AddressBook::Namegetter(const Contact& WantedContact) const
+{
+    return WantedContact.name;
+}
+
+std::string AddressBook::Phonegetter(const Contact& WantedContact) const
+{
+    return WantedContact.phone;
+}
+
+void AddressBook::ListContacts() {
     if (contacts.empty()) {
         std::cout << "No contacts found.\n";
         return;
     }
 
     for (size_t i = 0; i < contacts.size(); ++i) {
-        std::cout << i + 1 << ". Name: " << contacts[i].name
-                << ", Phone: " << contacts[i].phone<<"\n";
+        std::cout << i + 1 << ". Name: " << Namegetter(contacts[i])
+                  << ", Phone: " << Phonegetter(contacts[i]) << "\n";
     }
 }
 
-void AdressBook::AddContact()
+void AddressBook::AddContact()
 {
     Contact newContact;
-    std::cout << "Enter name: ";
-    std::cin >> newContact.name;
-    std::cout << "Enter phone: ";
-    std::cin >> newContact.phone;
+    NameSetter(newContact);
+    PhoneSetter(newContact);
     contacts.push_back(newContact);
     std::cout << "Contact added successfully.\n";
-
 }
 
-void AdressBook::UpdateContact()
+void AddressBook::UpdateContact()
 {
     if (contacts.empty()) {
         std::cout << "No contacts to update.\n";
@@ -58,49 +80,41 @@ void AdressBook::UpdateContact()
     std::string name;
     std::cout << "Enter the name of the contact to update: ";
     std::cin >> name;
-    int option=0;
+    int option = 0;
+    bool found = false;
     for (auto& contact : contacts) {
-        if (contact.name == name) {
-            std::cout << "1-cahnge name\n";
-            std::cout << "2-cahnge phone number\n";
-            std::cout << "3-cahnge both\n";
-            std::cin>>option;
+        if (Namegetter(contact) == name) {
+            found = true;
+            std::cout << "1 - Change name\n";
+            std::cout << "2 - Change phone number\n";
+            std::cout << "3 - Change both\n";
+            std::cin >> option;
             switch (option) {
-                case 1: {
-                    std::cout << "Enter new name: ";
-                    std::cin >> contact.name;
+                case 1:
+                    NameSetter(contact);
                     std::cout << "Contact updated successfully.\n";
                     break;
-                    }
-                case 2:{
-                    std::cout << "Enter new phone: ";
-                    std::cin >> contact.phone;
+                case 2:
+                    PhoneSetter(contact);
                     std::cout << "Contact updated successfully.\n";
                     break;
-                }
                 case 3:
-                {
-                    std::cout << "Enter new name: ";
-                    std::cin >> contact.name;
-                    std::cout << "Enter new phone: ";
-                    std::cin >> contact.phone;
+                    NameSetter(contact);
+                    PhoneSetter(contact);
                     std::cout << "Contact updated successfully.\n";
                     break;
-                }
                 default:
-                {
-                    std::cout << "unvalid option\n";
-                }
-            
+                    std::cout << "Invalid option\n";
             }
+            break;  // exit the loop once the contact is updated
         }
-        return;
     }
-
-    std::cout << "Contact not found.\n";
+    if (!found) {
+        std::cout << "Contact not found.\n";
+    }
 }
 
-void AdressBook::DeleteContact()
+void AddressBook::DeleteContact()
 {
     if (contacts.empty()) {
         std::cout << "No contacts to delete.\n";
@@ -120,11 +134,9 @@ void AdressBook::DeleteContact()
     std::cout << "Contact deleted successfully.\n"; 
 }
 
-
-
-void AdressBook::SearchContact()
+void AddressBook::SearchContact()
 {
-        if (contacts.empty()) {
+    if (contacts.empty()) {
         std::cout << "No contacts to search.\n";
         return;
     }
@@ -134,9 +146,9 @@ void AdressBook::SearchContact()
     std::cin >> name;
 
     for (const auto& contact : contacts) {
-        if (contact.name == name) {
+        if (Namegetter(contact) == name) {
             std::cout << "Name: " << contact.name
-                      << ", Phone: " << contact.phone<<"\n";
+                      << ", Phone: " << contact.phone << "\n";
             return;
         }
     }
@@ -144,15 +156,13 @@ void AdressBook::SearchContact()
     std::cout << "Contact not found.\n";
 }
 
-
-void AdressBook::DeleteAllContacts()
+void AddressBook::DeleteAllContacts()
 {
     contacts.clear();
     std::cout << "All contacts have been deleted.\n";
 }
 
-
-void AdressBook::displayMenu() {
+void AddressBook::displayMenu() {
     std::cout << "\nWelcome to your favorite address book!\n"
               << "What do you want to do?\n"
               << "1. List        | Lists all users\n"
@@ -161,9 +171,9 @@ void AdressBook::displayMenu() {
               << "4. Delete all  | Removes all users\n"
               << "5. Search      | Search for a user\n"
               << "6. Close       | Closes the address book\n";
-    }
+}
 
-void AdressBook::run() {
+void AddressBook::run() {
     int choice;
     do {
         displayMenu();
@@ -189,14 +199,13 @@ void AdressBook::run() {
                 break;
             default:
                 std::cout << "Invalid choice. Please try again.\n";
-            }
-        } while (choice != 6);
+        }
+    } while (choice != 6);
 }
-
 
 int main()
 {
-    AdressBook obj;
+    AddressBook obj;
     obj.run();
 
     return 0;
