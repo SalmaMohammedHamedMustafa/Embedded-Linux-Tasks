@@ -76,7 +76,7 @@ int main() {
 
 ## C++ conditional statements same as C
 
-## C++ loops same as C except raged based loop
+## C++ loops same as C except ranged based loop
 ```cpp
 #include <iostream>
 #include <vector>
