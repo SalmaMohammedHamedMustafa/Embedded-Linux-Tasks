@@ -376,3 +376,72 @@ auto Ist = {1, 2, 3, 4, 5};
 // auto lst{l, 2, 3, 4};
 return 0;
 ```
+
+# Casting in C++
+## C style Cast
+- c style cast can cause many problems as it allows casting between any type of pointers without compiler checking 
+```cpp
+char c = 'a';
+int * ptr = (int*)&c;
+```
+- In c style cast this will not cause error, and it can cause many problems as the pointer ptr is accessing more 3 pytes after the char c and it can be an important part of memory
+
+## static_cast
+- whenever you need to use c style cast use static cast instead 
+```cpp
+char c = 'a';
+int * ptr = (int*)&c;  //no error
+int* ptr2 = static_cast<int*>(&c);   //error
+```
+
+## const_cast
+- const_cast is used to cast away the constness of variables
+- Rule 5-2-5 (Required) A cast shall not remove any const or volatile qualification from the type of a pointer or reference.
+- So, it is a bad practice 
+```cpp
+#include <iostream>
+int main() {
+    const int val = 10;
+    const int* ptr = &val;
+    //int *ptr2 = ptr;   //error
+    int* ptr2 = const_cast<int*>(ptr);
+    *ptr2=100;
+    std::cout<<*ptr2<<" ";
+    std::cout<<*ptr<<" ";
+    std::cout<<val<<"\n";
+ 
+    return 0;
+}
+```
+- output: 100 100 10
+
+## reinterpret_cast
+- reinterpret_cast should be used with extreme caution. It allows casting between any types of pointers, but it
+does not check the compatibility of the types, leading to potential errors and undeﬁned behavior. Always
+ensure that the types are compatible and the casting is safe when using reinterpret_cast.
+- it is like c style cast
+- example:
+```cpp
+#include <iostream>
+struct data {
+int x = 10;
+int y = 100;
+char c =0;
+bool b = false;
+};
+
+int main() {
+data d;
+// int *p = static_cast<int *>(&d);  #ERROR
+int *p = reinterpret_cast<int *>(&d);
+std::cout << *p++ << " ";
+std::cout << *p++ << " ";
+std::cout << *p << "\n";
+return 0;
+}
+```
+- output: 10 100 0
+
+## dynamic_cast
+- postponed
+
