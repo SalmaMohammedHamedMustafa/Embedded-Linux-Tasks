@@ -993,6 +993,32 @@ Non-const test called.
 Non-const getter result: Non-const getter called with temp = 5
 2
 
+### Delete
+```cpp
+#include <iostream>
+class Data {
+public:
+    bool flag = 1;
+    int value = 0;
+
+    Data() = delete;
+    Data(int flag);
+    void PrintInt();
+};
+
+Data::Data() {
+    std::cout << "Default" << std::endl;
+}
+
+Data::Data(int flag) {
+    // Implementation of the constructor
+}
+int main() {
+    Data d; // Error: Attempting to use the deleted default constructor
+    return 0;
+}
+```
+- Error: Attempting to use the deleted default constructor
 ### Friend class
 - A class that can be Access the private members of another class
 - the class firendship is not mutual 
