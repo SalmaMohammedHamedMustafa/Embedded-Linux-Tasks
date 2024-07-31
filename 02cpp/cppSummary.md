@@ -1088,7 +1088,7 @@ public:
     myData() { counter++; }
 
     static int counter;
-    static const int MAX = 5; // 4- it is related to class and also it is constant
+    static const int MAX = 5; // 4- it is related to class and also it is constant //spectial initialization for static const int as it is not exist in .rodata and we cannot send refrence to it (it is just an alias)
     static const int MIN;
     static const float PI;
     // static const int temp; // 7- Error if you would like to define in constructor
@@ -1131,6 +1131,106 @@ int main() {
 
 ### Memory Layout
 ![Alt text](classMemory.png)
+
+### Static method
+- 1- static function is not realted to instance it is realted to class
+```cpp
+#include <iostream>
+
+class myData {
+public:
+    myData() {}
+
+    static void myfun() { // 1- static function is not realted to instance it is realted to class
+
+        std::cout << "Hello World" << std::endl;
+        // temp = 10; // 2- Еггor cannot acces to (this)
+        number = 20; // 3- OK
+
+    }                  
+
+    static void test();
+    int temp;
+    static int number;
+};
+int myData::number = 10;
+
+void myData::test() {} // take care there is no static word outside the class
+int main() {
+
+    myData data;
+    myData data2;
+    myData::myfun(); // 4- calling from class name and from instance name
+    data.myfun();
+    return 0;
+
+}
+```
+### Some new things in c++
+```cpp
+- 1
+#include <iostream>
+#include <regex>
+#include <string>
+
+int main() {
+    std::string frame = "mynumber is 01112932885, myemail is eng.moatasem.9@gmail.com";
+    std::regex pattern("([a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6})");
+    std::smatch match;
+    std::regex_search(frame, match, pattern);
+    std::cout << match.str() << std::endl;
+    return 0;
+}
+```
+- 2
+```cpp
+#include <iostream>
+#include <sstream>
+#include <string>
+
+int main() {
+    std::string name;
+    int ID;
+    float score;
+    std::string frame = "Moatasem 1234 99.9";
+    std::stringstream st(frame);
+    st >> name >> ID >> score;
+    std::cout << name << std::endl; // Moatasem
+    std::cout << ID << std::endl;   // 1234
+    std::cout << score << std::endl; // 99.9
+    return 0;
+}
+``` 
+- 3-  Indicates that the included header file cfile.h contains C code. SO the g++ doesnot mangle the functions in it.
+```cpp
+#include <iostream>
+#include <algorithm>
+#include <string.h>
+#include <vector>
+
+extern "C" {
+    #include "cfile.h"
+}
+
+using namespace std;
+
+void fun(int x) {
+    std::cout << "hello world" << std::endl;
+}
+
+void fun(int x, int y) {
+    std::cout << "hello world" << std::endl;
+}
+
+int main() {
+    fun(2);
+    fun(2, 3);
+    display();
+
+    return 0;
+}
+```
+
 
 
 
