@@ -445,3 +445,354 @@ return 0;
 ## dynamic_cast
 - postponed
 
+# Lambda Expressions
+## Syntax
+- Lambda expressions provide a concise way to create anonymous function objects. The basic syntax is:
+
+```cpp
+auto func = []() {
+    // function body
+};
+```
+- You can also capture variables, pass parameters, and specify the return type:
+
+```cpp
+auto func = [captured_variables](parameters) -> return_type {
+    // function body
+};
+```
+## Capture List
+- [captured_variables]: This is the capture list, which allows the lambda to access variables from its enclosing scope.
+
+- [&] captures all variables by reference.
+- [=] captures all variables by value.
+- Specific variables can be captured by listing them, like [x, &y].
+## Mutable Variables
+- The mutable keyword allows modifying captured variables within the lambda
+```cpp
+[temp] mutable {
+    return x + y;
+};
+```
+
+## Return Type
+- -> return_type: This specifies the return type of the lambda function. If omitted, the return type is deduced automatically.
+## Implementation 
+
+```cpp
+// Lambda expression
+auto lambda = [](int a, int b) -> int {
+    return a + b;
+};
+```
+## Auto type detection 
+- Auto type detection in c++ is available in c++14 and above
+## When we use it ?
+- passing function as argument
+```cpp
+    auto sort_with_lambda = [](int input_arr[], int output_arr[], int order, size_t size) {
+        std::copy(input_arr, input_arr + size, output_arr);}
+```
+- traceability
+- return function
+
+
+# Const vs Constexpr
+## const
+The const keyword is used to declare variables whose value cannot be changed after initialization. It can be used with variables, pointers, and member functions:
+
+```cpp
+const int x = 10;          // constant variable
+const int* ptr = &x;       // pointer to a constant integer
+int* const ptr2 = &x;      // constant pointer to an integer
+```
+## constexpr
+The constexpr keyword is used to declare variables, functions, and objects that can be evaluated at compile time. This allows for optimizations and ensures that the value is constant:
+
+```cpp
+constexpr int y = 20;      // constant expression
+
+constexpr int add(int a, int b) {
+    return a + b;
+}
+
+constexpr int result = add(3, 4); // evaluated at compile time
+```
+
+### Differences
+- const ensures that the value cannot be changed, but the value might be determined at runtime.
+- constexpr ensures that the value is constant and can be evaluated at compile time.
+```cpp
+const int a = 5;
+constexpr int b = 10;
+
+int array1[a];           // This may not compile, depending on the compiler
+int array2[b];           // This will always compile
+
+constexpr int add(int x, int y) {
+    return x + y;
+}
+
+int result = add(a, b);  // This will be evaluated at compile time
+```
+
+# OOP
+## Initialization Types in C++
+
+### Value Initialization:
+
+- Initializes a variable to a known value.
+- Example: int x{}; (x is initialized to 0).
+
+### Direct Initialization:
+
+- Calls the constructor directly.
+- Example: int x(5); (x is initialized to 5).
+
+### Copy Initialization:
+
+- Initializes a variable using the value of another variable.
+- Example: int x = 5; (x is initialized to 5).
+
+### Uniform Initialization (C++11 and later):
+
+- Uses curly braces {} for initializing variables.
+- Prevents narrowing conversions.
+- Example: int x{5}; (x is initialized to 5).
+
+### the diffrence between them 
+- in trivial datatypes {int,float,char,double,bool,struct variables}
+- the diffrence will be in the folowing case:
+```cpp
+int main() {
+int value1;//garbage
+int value2{};//zero 
+//another way for value initialization
+int value3 = int{};
+std::cout << value1<< " ";
+std::cout << value3<< " ";
+std::cout << value2 << "\n";
+return 0;
+}
+```
+- output: garbage value  0 0
+- the same behavior will be will struct variables
+
+- In vectors:
+```cpp
+ #include <iostream>
+#include <iterator>
+#include <vector>
+
+/*ignore the detailes of this function for now */
+template <typename T> void print(T data) {
+
+std::copy(std::begin(data), std::end(data),std::ostream_iterator<int>(std::cout," "));
+std::cout << std::endl;
+
+}
+
+int main() {
+std::vector<int>v(12,3); //copy intializatin
+std::vector<int>v2{12,3}; //value initialization
+print(v);
+print(v2);
+return 0;
+}
+```
+- output: 3 3 3 3 3 3 3 3 3 3 3 3 
+12 3 
+
+- you cannot use direct initailization ike that 
+```cpp
+int value(); //vexing parse
+```
+- it works like a function decleration 
+### the best of them?
+- in trivial data types the best is uniform initialization (value)
+### narrow conversion 
+```cpp
+float decimal = 4.5;
+int number = decimal; //no error (implicit casting)
+int number2{decimal}; //error as the unifoem initialization cannot do implicit casting
+```
+
+## Enum
+### C-Style Enum
+- In C, enums are a way to assign names to integral constants, which makes the code more readable. However, they are not type-safe and can lead to naming conflicts.
+
+```cpp
+enum Color { RED, GREEN, BLUE };
+Color color = RED;
+```
+### C++-Style Enum (enum class)
+- C++ introduces enum class, which provides type safety and prevents naming conflicts. enum class members must be accessed using the scope resolution operator.
+
+```cpp
+enum class Color { RED, GREEN, BLUE };
+Color color = Color::RED;
+```
+### C enum rules
+```cpp
+#include <iostream>
+enum Traffic
+{
+    RED,
+    YELLOW, // 1 i
+    GREEN
+};
+int main() {
+Traffic obj{};
+std::cout << obj << " "; //can be printer like any integer
+std::cout << Traffic::YELLOW << " ";
+int number = RED; // convert from data type to another date type
+// Traffic obj2 = 2; ERROR 
+std::cout << sizeof(obj) <<"\n"; //4 and we didn't need all 4 bytes
+}
+```
+- output: 0 1 4
+
+### enum class rules 
+
+```cpp
+#include <iostream>
+enum class Traffic : unsigned char          // 1 - specify size optional
+{
+    RED,
+    YELLOW,
+    GREEN
+};
+
+int main()
+{
+    Traffic obj;
+
+    // std::cout << obj << std::endl;        // 2 - cannot print obj till operator overloading exist
+    std::cout << (int)obj << " ";     // 3 - to print use casting *** till we exploit static_cast<int>(obj)
+
+    //std::cout << RED << std::endl;          // 4 - ERROR you cannot access literals without class name
+    std::cout << (int) Traffic::RED <<" "; // 5 - access enum class
+
+    // int x = Traffic::RED;                 // 6 - cannot convert from enum to int
+    // Traffic obj2 = 1;                     // 7 - ERROR cannot convert int to classic enum
+
+    int y= static_cast<int>(Traffic::RED);
+    Traffic obj2 = static_cast<Traffic>(1);
+    std::cout << (int)obj2<<" "<<y<<"\n";
+
+    // auto complet
+    return 0;
+}
+```
+- output: garbage 0 1 0
+
+## Class and Struct
+- they are the same only for now
+
+### Encapsulation
+- Encapsulation is the bundling of data and methods that operate on that data within a single unit or class, and restricting access to some of the object's components.
+### class
+- can contain functions and variabes 
+- in memory members will be created acoording to the scope of the object as the normal variables 
+- Stack Segment: Local variables, including object instances, are stored here.
+- Heap Segment: Dynamically allocated memory (using new and delete).
+- Text Segment: Stores compiled code (the program's executable instructions).
+- BSS Segment: Uninitialized global and static variables.
+- functions will be in .txt section
+- only one function for the whole class
+- when you create an object the constructor is called and stack frame is created
+- stack frame contains the variables
+- when the object scope is over the desctrutor is called
+### Access Modifiers
+- Public: Members are accessible from outside the class.
+- Private: Members are only accessible from within the class itself.
+- Protected: Members are accessible within the class and by derived class instances.
+
+### the only diffrence between class and struct
+- struct members are public bt default
+- class members are private by defualt
+
+### Functions
+- when functions are defined inside the class definition it does not exist in the .txt except when you create an object of the class and use the function  
+- when it's defined outside it exists
+- it's better for the debugging proccess to write function definitions outsode the class definition 
+
+### Constructors
+#### Default Constructor: A constructor that takes no arguments.
+- if no constructor is created by yu the compiler will creat a defualt one
+ ```cpp
+class MyClass {
+public:
+    MyClass() {}  // Default constructor
+};
+```
+#### vexing parse
+-  if you call the defualt constructor like this it is vexing parse
+```cpp
+MyClass obj();
+```
+#### How to call the  Default constructor
+```cpp
+MyClass obj1; //copy
+MyClass obj2{}; //value
+MyClass obj3 = MyClass(); //Direct
+```
+
+#### Parameterized Constructor: A constructor that takes one or more arguments.
+- as you've defined a Parameterized Constructor the compiler will not generate default one
+- in this case if you want to create en instance of your class with out parameters you need to define a defualt constructor your self
+```cpp
+class MyClass {
+public:
+    MyClass(int value) {}  // Parameterized constructor
+};
+```
+#### This Pointer
+this is an implicit pointer in C++ that points to the object for which a member function is called. It is used within a class's member functions to refer to the invoking object.
+
+```cpp
+class MyClass {
+    int value;
+public:
+    void setValue(int value) {
+        this->value = value;
+    }
+};
+```
+#### Important example on Parameterized Constructor
+```cpp
+class myData {
+    // Default constructor
+    myData() {
+        std::cout << "default constructor" << std::endl;
+    }
+
+    // Parameterized constructor 1
+    myData(int a) {
+        std::cout << "parameterized constructor 1" << std::endl;
+        this->a = a;
+    }
+
+    // Parameterized constructor 2
+    myData(int a, int b) : myData(a) {
+        std::cout << "parameterized constructor 2" << std::endl;
+        this->b = b;
+    }
+
+    int a;
+    int b;
+};
+
+int main() {
+    // Example usage
+    myData my2(a: 2, b: 3);
+    std::cout << my2.a << " " << my2.b << std::endl;
+
+    return 0;
+}
+```
+#### aggregate initialization 
+- if yu do not have Parameterized Constructor you still can give the Default Constructor parameters and the compiler may be smart enough to understand
+- It is a bad practise 
+
+#### Initializer List
