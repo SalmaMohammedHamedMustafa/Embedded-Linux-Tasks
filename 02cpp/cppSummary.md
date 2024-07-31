@@ -762,6 +762,7 @@ public:
 #### Important example on Parameterized Constructor
 ```cpp
 class myData {
+    public:
     // Default constructor
     myData() {
         std::cout << "default constructor" << std::endl;
@@ -785,14 +786,343 @@ class myData {
 
 int main() {
     // Example usage
-    myData my2(a: 2, b: 3);
+    myData my2( 2,  3);
     std::cout << my2.a << " " << my2.b << std::endl;
 
     return 0;
 }
 ```
+- output: 
+parameterized constructor 1
+parameterized constructor 2
+2 3
+
 #### aggregate initialization 
 - if yu do not have Parameterized Constructor you still can give the Default Constructor parameters and the compiler may be smart enough to understand
 - It is a bad practise 
+- example:
+```cpp
+class myData {
+    // Default constructor
+    myData() {
+        std::cout << "default constructor" << std::endl;
+    }
+
+
+    int a;
+    int b;
+};
+
+int main() {
+    // Example usage
+    myData my(a: 2, b: 3);
+    std::cout << my2.a << " " << my2.b << std::endl;
+
+    return 0;
+}
+```
 
 #### Initializer List
+- example:
+```cpp
+#include <iostream>
+
+class myData {
+    public:
+    // Parameterized constructor 
+    myData(int a,int b) 
+    :a(a),b(b)
+    {
+        std::cout << "parameterized constructor 1" << std::endl;
+    }
+
+    int a;
+    int b;
+};
+
+int main() {
+    // Example usage
+    myData my2( 2,  3);
+    std::cout << my2.a << " " << my2.b << std::endl;
+
+    return 0;
+}
+```
+- output: 
+parameterized constructor 1
+2 3
+
+- Put yur class vaiables in the initializer list in order
+##### Cases where you need to use initializer list
+```cpp
+#include <iostream>
+
+class myData {
+public:
+    // Parameterized constructor
+    myData(int a, int b, int c, int d) 
+    : a(a), b(b), internalC(c), c(internalC), d(d)
+    {
+        std::cout << "parameterized constructor" << std::endl;
+    }
+
+    int a;
+    int b;
+    int internalC;  // Internal storage for reference member
+    int &c;         // Reference to internalC
+    const int d;    // Constant member 
+    const int e = 0; //or just initialize constant variables
+
+};
+
+int main() {
+    // Example usage
+    myData my2(2, 3, 4, 5);
+    std::cout << my2.a << " " << my2.b << " " << my2.c << " " << my2.d << std::endl;
+
+    return 0;
+}
+```
+
+### const method
+- 1- you cannot modify any variable(members)
+- 2- you can create local variables and change them
+- 3- you can modify the parameter value as well
+- 4- you can modify static member (for future)
+    4.1- you can modify reference member (for future)
+    4.2- this doesn't match with the pointers
+- 5- you can use mutable if you would like to modify the variable
+- 6- const instance can only call const member functions
+- 7- non-const instance can call both const and non-const member functions
+- 8- non-const instance will call non-const methods even if there is const one
+- const member functions shall not return non-cost reference or pointer to the class members
+
+```cpp
+#include <iostream>
+
+class myData {
+public:
+    myData(int a, int b) : a(a), b(b), ptr(&this->a), number(this->b) {
+        std::cout << "Parameterized constructor called." << std::endl;
+    }
+
+    int getter(int temp) const {
+        std::cout << "Const getter called with temp = " << temp << std::endl;
+        // a = 10; 1- you cannot modify any variable(members)
+        // std::cout << "Trying to modify a non-mutable member: a = 10;" << std::endl;
+
+        // 2- you can create local variables and change them
+        int myvalue = 10;
+        myvalue++;
+        std::cout << "Local variable myvalue incremented: " << myvalue << std::endl;
+
+        // 3- you can modify the parameter value as well
+        temp++;
+        std::cout << "Parameter temp incremented: " << temp << std::endl;
+
+        // 4- you can modify static member (for future)
+        classmember++;
+        std::cout << "Static member classmember incremented: " << classmember << std::endl;
+
+        // 4.1- you can modify reference member (for future)
+        number = 100;
+        std::cout << "Reference member number modified: " << number << std::endl;
+
+        // 4.2- this doesn't match with the pointers
+        // ptr = &a; 
+        // std::cout << "Trying to modify pointer to member: ptr = &a;" << std::endl;
+
+        return a;
+    }
+
+    void fun() const {
+        std::cout << "Const fun called." << std::endl;
+    }
+
+    void test() {
+        std::cout << "Non-const test called." << std::endl;
+    }
+
+    int getter(int temp) {
+        std::cout << "Non-const getter called with temp = " << temp << std::endl;
+        return a;
+    }
+
+private:
+    int a; // 5- you can use mutable if you would like to modify the variable #bad practice
+    int b;
+    int* ptr;
+    int& number;
+    static int classmember;
+};
+
+int myData::classmember = 0;
+
+int main() {
+    // 6- const instance can only call const member functions
+    const myData data(1, 2);
+    std::cout << "Const instance data created." << std::endl;
+    // data.test(); // error
+    data.getter(5); // Calls const getter
+
+    // 7- non-const instance can call both const and non-const member functions
+    myData data2(2, 2);
+    std::cout << "Non-const instance data2 created." << std::endl;
+    data2.getter(5); // Calls non-const getter
+    data2.fun(); // Calls const fun
+    data2.test(); // Calls non-const test
+
+    // 8- non-const instance will call non-const methods even if there is a const one
+    std::cout << "Non-const getter result: " << data2.getter(5) << std::endl;
+
+    return 0;
+}
+```
+- output: Parameterized constructor called.
+Const instance data created.
+Const getter called with temp = 5
+Local variable myvalue incremented: 11
+Parameter temp incremented: 6
+Static member classmember incremented: 1
+Reference member number modified: 100
+Parameterized constructor called.
+Non-const instance data2 created.
+Non-const getter called with temp = 5
+Const fun called.
+Non-const test called.
+Non-const getter result: Non-const getter called with temp = 5
+2
+
+### Friend class
+- A class that can be Access the private members of another class
+- the class firendship is not mutual 
+```cpp
+#include <iostream>
+
+// Forward declaration of RectangleAreaCalculator
+class RectangleAreaCalculator;
+
+class Rectangle {
+private:
+    double length;
+    double width;
+
+public:
+    // Constructor to initialize the rectangle
+    Rectangle(double l, double w) : length(l), width(w) {}
+
+    // Declare RectangleAreaCalculator as a friend class
+    friend class RectangleAreaCalculator;
+};
+
+class RectangleAreaCalculator {
+public:
+    // Method to calculate the area of the rectangle
+    double calculateArea(const Rectangle& rect) {
+        return rect.length * rect.width;
+    }
+};
+
+int main() {
+    // Create a Rectangle object
+    Rectangle myRectangle(5.0, 3.0);
+
+    // Create a RectangleAreaCalculator object
+    RectangleAreaCalculator calculator;
+
+    // Calculate and display the area
+    double area = calculator.calculateArea(myRectangle);
+    std::cout << "Area of the rectangle: " << area << std::endl;
+
+    return 0;
+}
+```
+
+### Friend function 
+- a function or operator overloading that can access the private members of a class
+```cpp
+#include <iostream>
+
+class temp; // forward declaration
+void fun(); // forward declaration
+
+class myData {
+public:
+    myData(int a, int b) : a(a), b(b) {}
+
+private:
+    int a;
+    int b;
+    friend void fun(); // 2- friend function
+
+    // friend operator overloading (for future)
+    friend std::ostream& operator<<(std::ostream& os, const myData& data) {
+        os << data.a << " " << data.b;
+        return os;
+    }
+};
+
+void fun() {
+    myData data(1, 2);
+    std::cout << data.a << std::endl;
+    std::cout << data.b << std::endl;
+}
+
+int main() {
+    // Using the friend function
+    fun();
+    // Using the friend operator overloading
+    myData data(3, 4);
+    std::cout << data << std::endl;
+
+    return 0;
+}
+```
+### Static class member
+- Static member is not related to instance, it is related to the class itself
+```cpp
+#include <iostream>
+
+class myData {
+public:
+    myData() { counter++; }
+
+    static int counter;
+    static const int MAX = 5; // It is related to the class and also it is constant
+    static const int MIN;
+    // error if you tried to define static const in the constructor 
+
+private:
+    // Static member is not related to instance, it is related to the class itself
+};
+
+// Definition of static member should be outside the class
+int myData::counter = 0;
+
+// Initialization of static const member should be outside the class
+const int myData::MIN = 0;
+
+int main() {
+    // Creating instances of myData
+    myData d1;
+    myData d2;
+    myData d3;
+    myData d4;
+    myData d5;
+
+    // Accessing and printing static members
+    std::cout << myData::counter << std::endl; // You can access the static member from the class name
+    std::cout << d1.counter << std::endl;      // You can access the static member from an object
+    std::cout << myData::MAX << std::endl;
+    std::cout << d1.MIN << std::endl;
+
+    return 0;
+}
+```
+
+### Memory Layout
+![Alt text](classMemory.png)
+
+
+
+
