@@ -1080,30 +1080,39 @@ int main() {
 ```
 ### Static class member
 - Static member is not related to instance, it is related to the class itself
+- If a static data member of integral or enumeration type is declared const (and not volatile ), it can be initialized with an initializer in which every expression is a constant expression, right inside the class definition
 ```cpp
 #include <iostream>
+#include <vector>
 
 class myData {
 public:
     myData() { counter++; }
 
     static int counter;
-    static const int MAX = 5; // It is related to the class and also it is constant
+    static const int MAX = 5; // 4- it is related to class and also it is constant
     static const int MIN;
-    // error if you tried to define static const in the constructor 
+    static const float PI;
+    // static const int temp; // 7- Error if you would like to define in constructor
 
 private:
     // Static member is not related to instance, it is related to the class itself
+    int n;
 };
 
-// Definition of static member should be outside the class
+// 1- Definition should be outside the class
 int myData::counter = 0;
 
-// Initialization of static const member should be outside the class
+// 6- It should be initialized outside the class
 const int myData::MIN = 0;
 
+// 6.1- It should be initialized outside the class & not integral data type
+const float myData::PI = 3.14;
+
 int main() {
-    // Creating instances of myData
+    // Creating a vector of myData objects
+    // std::vector<myData> v(5);
+
     myData d1;
     myData d2;
     myData d3;
@@ -1111,13 +1120,15 @@ int main() {
     myData d5;
 
     // Accessing and printing static members
-    std::cout << myData::counter << std::endl; // You can access the static member from the class name
-    std::cout << d1.counter << std::endl;      // You can access the static member from an object
+    std::cout << myData::counter << std::endl; // 2- You can access the static member from the class name
+    std::cout << d1.counter << std::endl;      // 3- You can access the static member object
     std::cout << myData::MAX << std::endl;
     std::cout << d1.MIN << std::endl;
+    std::cout << myData::PI << std::endl;
 
     return 0;
 }
+
 ```
 
 ### Memory Layout
