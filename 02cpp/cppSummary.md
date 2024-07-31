@@ -1083,8 +1083,6 @@ int main() {
 - If a static data member of integral or enumeration type is declared const (and not volatile ), it can be initialized with an initializer in which every expression is a constant expression, right inside the class definition
 ```cpp
 #include <iostream>
-#include <vector>
-
 class myData {
 public:
     myData() { counter++; }
