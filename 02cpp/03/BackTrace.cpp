@@ -14,7 +14,7 @@ public:
     */
     void enterFunction(const std::string& functionName) {
         callStack.push(functionName); // Push the function name onto the stack
-        std::cout << "Enter to [" << functionName << "]" << std::endl; // Print enter message
+        std::cout << "Enter to [" << functionName << "]\n"; // Print enter message
     }
 
     /* 
@@ -22,7 +22,7 @@ public:
     @return: void
     */
     void exitFunction() {
-        std::cout << "Exit From [" << callStack.top() << "]" << std::endl; // Print exit message
+        std::cout << "Exit From [" << callStack.top() << "]\n" ; // Print exit message
         callStack.pop(); // Remove the function name from the stack as we are exiting the function
     }
 
@@ -31,14 +31,14 @@ public:
     @return: void
     */
     void printBacktrace() {
-        std::cout << "Backtrace as follows:" << std::endl;
+        std::cout << "Backtrace as follows:\n";
         int i = 0;
         std::stack<std::string> tempStack = callStack; // Copy to temp stack to maintain original
         while (!tempStack.empty()) {
             std::cout << i++ << " - " << tempStack.top() << std::endl;
             tempStack.pop();
         }
-        std::cout << "Back Trace is Finished" << std::endl;
+        std::cout << "Back Trace is Finished\n";
     }
 };
 
