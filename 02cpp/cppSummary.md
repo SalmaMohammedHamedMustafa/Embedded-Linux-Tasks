@@ -1257,7 +1257,133 @@ int main() {
 }
 ```
 
+## Operator Overloading
+- Operator overloading in C++ is a feature that allows developers to redefine the behavior of operators for user-defined types (such as classes and structs). This means that you can define how operators like +, -, *, ==, etc., work when applied to objects of your own classes.
+- By overloading operators, you can make your custom types behave more like built-in types, which can make your code more intuitive and easier to read. For example, you might overload the + operator for a Complex class to add two complex numbers, or the << operator to output a class object to a stream.
+- Detailed Example:
+```cpp
+#include <iostream>
 
+class ImaginaryNumbers {
+public:
+    double real;
+    double imaginary;
 
+    // Default constructor
+    ImaginaryNumbers() : real(0), imaginary(0) {
+        std::cout << "constructor called\n";
+    }
 
+    // Parameterized constructor
+    ImaginaryNumbers(double r, double i) : real(r), imaginary(i) {
+        std::cout << "parameterized constructor called\n";
+    }
+
+    // Destructor
+    ~ImaginaryNumbers() {
+        std::cout << "Destructor called\n";
+    }
+    // Pre-increment operator overloading (++obj)
+    ImaginaryNumbers& operator++();
+    // Post-increment operator overloading (obj++)
+    ImaginaryNumbers operator++(int);
+    // Friend function to overload the + operator
+    friend ImaginaryNumbers operator+(const ImaginaryNumbers& num1, const ImaginaryNumbers& num2);
+    // Friend function to overload the - operator
+    friend ImaginaryNumbers operator-(const ImaginaryNumbers& num1, const ImaginaryNumbers& num2);
+    // Friend function to overload the << operator
+    friend std::ostream& operator<<(std::ostream& os, const ImaginaryNumbers& num);
+    // Friend function to overload the >> operator
+    friend std::istream& operator>>(std::istream& is, const ImaginaryNumbers& num);
+    };
+//Operator overloading for ++obj
+ImaginaryNumbers& ImaginaryNumbers::operator++() {
+    ++real;
+    ++imaginary;
+    return *this; // Return the incremented object
+}
+// Post-increment operator overloading (obj++)
+ImaginaryNumbers ImaginaryNumbers::operator++(int) {
+    ImaginaryNumbers temp = *this; // Copy current state
+    real++;
+    imaginary++;
+    return temp; // Return the old state
+}
+// Operator overloading for +
+ImaginaryNumbers operator+(const ImaginaryNumbers& num1, const ImaginaryNumbers& num2) {
+    return ImaginaryNumbers(num1.real + num2.real, num1.imaginary + num2.imaginary);
+}
+// Operator overloading for -
+ImaginaryNumbers operator-(const ImaginaryNumbers& num1, const ImaginaryNumbers& num2) {
+    return ImaginaryNumbers(num1.real - num2.real, num1.imaginary - num2.imaginary);
+}
+// Operator overloading for <<
+std::ostream& operator<<(std::ostream& os, const ImaginaryNumbers& num) {
+    os << num.real << " + " << num.imaginary << "i\n";
+    return os;
+}
+// Operator overloading for >>
+std::istream& operator>>(std::istream& is, ImaginaryNumbers& num) {
+    std::cout << "Enter real part: ";
+    is >> num.real;
+    std::cout << "Enter imaginary part: ";
+    is >> num.imaginary;
+    return is;
+}
+
+int main() {
+    ImaginaryNumbers number1;
+    ImaginaryNumbers number2;
+    ImaginaryNumbers summation;
+    ImaginaryNumbers Diff;
+    std::cin>>number1;
+    std::cin>>number2;
+    summation = number1 + number2;
+    Diff = number1 - number2;
+    std::cout << "Summation: " << summation << std::endl;
+    std::cout << "diffrence: " << Diff << std::endl;
+    ++summation;
+    ImaginaryNumbers temp = summation++;
+    std::cout<<summation;
+    std::cout<<temp;
+    return 0;
+}
+```
+### explicit
+- Rule 12-1-3
+This rule states that all constructors that can be called with a single argument of a fundamental type (like int) should be declared explicit. This helps prevent unintended implicit conversions, making the code safer and more predictable. 
+```cpp
+class Complex {
+private:
+    int real;
+    float img;
+public:
+    Complex() = default;
+    explicit Complex(int real) : real(real), img(0) {}  // Explicit to prevent implicit conversions
+    Complex(int real, float img) : real(real), img(img) {}
+
+    void print() {
+        std::cout << "Real is " << real << " Img is " << img << std::endl;
+    }
+
+    int operator+(int v) {
+        return real + v;
+    }
+
+    friend int operator+(int value, Complex c);
+};
+
+int operator+(int value, Complex c) {
+    return value + c.real;
+}
+
+int main() {
+    Complex B(2, 2.5);
+    Complex A = Complex(2);  // Works, explicit call
+    Complex C = 2;  // Error, cannot implicitly convert int to Complex due to explicit constructor
+}
+```
+
+### functor
+### Conversion
 
