@@ -1641,7 +1641,7 @@ Destructor
         return *this;
         }
 ```
-## Value categories 
+## Value Categories 
 ```cpp
 #include <iostream>
 #include <type_traits>
@@ -1701,8 +1701,61 @@ int main() {
 #### More reading 
 - [Value Categories](https://en.cppreference.com/w/cpp/language/value_category)
 
-- [Type Categories](https://en.cppreference.com/w/cpp/language/type)
+## Type Category
 
+### Reference Types
 
+- **Lvalue Reference**: Denoted by `&`, can bind to lvalues.
+- **Rvalue Reference**: Denoted by `&&`, can bind to rvalues.
 
+```cpp
+int y = 10;
+int &x = y; // x is an lvalue reference to y
+int &&rvalueRef = 10; // rvalueRef is an rvalue reference to a temporary
+printf("The address of rvalue ref is : %p\n", &rvalueRef);
+```
+- **`int &x = y;`**: `x` is an lvalue reference to `y`, meaning `x` can be used to modify `y`.
+- **`int &&rvalueRef = 10;`**: `rvalueRef` is an rvalue reference initialized with a temporary value.
 
+```cpp
+void fun(int x) {}
+
+int main() {
+    int var = 10;
+    int &ref = var; // ref is an lvalue reference to var
+
+    fun(1); // 1 is an rvalue
+    fun(var); // var is an lvalue
+    fun(ref); // ref is an lvalue
+}
+```
+- **`fun(1);`**: `1` is an rvalue.
+- **`fun(var);`**: `var` is an lvalue.
+- **`fun(ref);`**: `ref` is also an lvalue.
+```cpp
+// lvalue refrence
+void fun(int &x) {}
+
+int main() {
+    int var = 10;
+    int &ref = var; // ref is an lvalue reference to var
+
+    //fun(1); // 1 is an rvalue //ERROR
+    fun(var); // var is an lvalue
+    fun(ref); // ref is an lvalue
+}
+```
+```cpp
+// it can hold temporary also 
+// lvalue refrence
+void fun(const int &x) {}
+
+int main() {
+    int var = 10;
+    int &ref = var; // ref is an lvalue reference to var
+
+    fun(1); // 1 is an rvalue 
+    fun(var); // var is an lvalue
+    fun(ref); // ref is an lvalue
+}
+```
