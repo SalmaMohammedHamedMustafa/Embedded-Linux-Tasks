@@ -1387,3 +1387,322 @@ int main() {
 ### functor
 ### Conversion
 
+## Copy Constructor 
+
+```cpp
+#include <iostream>
+class String {
+    char* str=nullptr;
+    int size;
+
+public:
+    String(char *str) : str(str) {}
+
+    /* 
+    Implicit constructor is created
+    // 1- Why the copy constructor is must to be reference?
+    // 2- Why the copy constructor is must to be const?
+    */
+    void fun() { std::cout << str << std::endl; }
+    void setchar(char value) { *str = value; }
+};
+
+int main() {
+    char array[] = "hello";
+    String t1(array);
+
+    String t2(t1);
+    t1.setchar('A');
+    t2.fun();
+
+    return 0;
+}
+```
+- output: Aello
+- in this case the compiler will create a copy constructor which will create a shallow copy from t1 in t2 
+- the implementation of the copy constructor the compiler will generate is:
+```cpp
+String(const String &obj) {
+    str = obj.str;
+    size = obj.size;
+    }
+```
+- t2.str wil be equal to t1.str so they both will point to the same memory address (shalow copy)
+- this problrm will not happen with trivial data types (int, float, double, bool, (struct, class) without any constructors or functions )
+#### why copy constructor must be by refrence?
+- not using the refrence in copy constructor implementation will cause an error 
+- String(String obj) means obj=t1 which calls the copy constructor 
+- So, using the refrence wil avoid infinitly stucking the the copy constructor 
+#### why copy constructor must be const?
+```cpp 
+#include <iostream>
+#include <cstring>
+class String {
+    char* str=nullptr;
+    int size;
+
+public:
+    String(char *str) : str(str) {}
+
+    String(const String &obj) {
+        size = obj.size;
+        str = new char[size]; // allocating in heap section respected to the size
+        strcpy(str, obj.str); // copy data from obj.str to this->str
+        // memory leakage
+        //ignore this issue for now
+    }
+
+    void fun() { std::cout << str << std::endl; }
+    void setchar(char value) { *str = value; }
+};
+String  get_instance() {
+    static char array[] = "hello";
+    String t1(array); // instance
+    return t1;
+}
+
+int main() {
+    char array[] = "hello";
+    String t1(array);
+
+    // get_instance() will return a temporary object which means this one will be
+    // RVALUE
+    // const T&
+    // T&&
+    String t2(get_instance());
+    t1.setchar('A');
+    t1.fun();
+    t2.fun();
+
+    return 0;
+}
+```
+- in this code we are passing a RVALUE to the copy constructor ( get_instance() will return a temporary object)
+- the RVALUE needs to be called passed as const T&
+
+### fixing memory leakage 
+- to analyze memory run the command tldr valgring
+- get the right command you will find memory leakage
+- to fix this we need to delete the memory allocated in the heap in the destructor
+```cpp
+#include <iostream>
+#include <cstring>
+class String {
+    char* str=nullptr;
+    int size;
+
+public:
+    String(char *str) : str(str) {}
+
+    String(const String &obj) {
+        size = obj.size;
+        str = new char[size]; // allocating in heap section respected to the size
+        strcpy(str, obj.str); // copy data from obj.str to this->str
+    }
+    ~ String()
+    {
+        delete [] str;
+        str =nullptr;
+    }
+    void fun() { std::cout << str << std::endl; }
+    void setchar(char value) { *str = value; }
+};
+String  get_instance() {
+    static char array[] = "hello";
+    String t1(array); // instance
+    return t1;
+}
+
+int main() {
+    char array[] = "hello";
+    String t1(array);
+
+    // get_instance() will return a temporary object which means this one will be
+    // RVALUE
+    // const T&
+    // T&&
+    String t2(get_instance());
+    t1.setchar('A');
+    t1.fun();
+    t2.fun();
+
+    return 0;
+}
+```
+- output: Aello
+hello
+free(): invalid size
+Aborted (core dumped)
+- when calling the destructor for the normal constructor the delete is trying to delete a pointer points to the stack 
+- corrected version: 
+```cpp
+#include <iostream>
+#include <cstring>
+class String {
+    char* str=nullptr;
+    int size;
+
+public:
+        String(char *input_str) {
+        size = std::strlen(input_str) + 1;  // get size including null terminator
+        str = new char[size];               // allocate memory on heap
+        std::strcpy(str, input_str);        // copy the input string
+    }
+
+    String(const String &obj) {
+        size = obj.size;
+        str = new char[size]; // allocating in heap section respected to the size
+        strcpy(str, obj.str); // copy data from obj.str to this->str
+    }
+    ~ String()
+    {
+        delete [] str;
+        str =nullptr;
+    }
+    void fun() { std::cout << str << std::endl; }
+    void setchar(char value) { *str = value; }
+};
+String  get_instance() {
+    static char array[] = "hello";
+    String t1(array); // instance
+    return t1;
+}
+
+int main() {
+    char array[] = "hello";
+    String t1(array);
+
+    // get_instance() will return a temporary object which means this one will be
+    // RVALUE
+    // const T&
+    // T&&
+    String t2(get_instance());
+    t1.setchar('A');
+    t1.fun();
+    t2.fun();
+
+    return 0;
+}
+```
+
+
+## Elide Constructor 
+```cpp
+#include <iostream>
+// The <type_traits> header included in the original image is not used, so it is omitted here.
+
+class String {
+private:
+public:
+    String() { std::cout << "Default constructor" << std::endl; }
+    ~String() { std::cout << "Destructor" << std::endl; }
+    String(const String &obj) { std::cout << "Copy constructor" << std::endl; }
+};
+
+String get_instance() {
+    String t1; // 1 Default constructor
+    return t1; // 2 Copy constructor commented out, actually returns address of local object temp(t2)
+    // Destructor -> (1)
+}
+
+int main() {
+    String t2(get_instance()); // 3 t2(temp)
+    return 0;
+}
+```
+- command : g++ try.cpp && ./a.out  output: 
+Default constructor
+Destructor
+- command: g++ -g  try.cpp -std=c++14 -fno-elide-constructors -O0 && ./a.out  output:
+Default constructor
+Copy constructor
+Destructor
+Copy constructor
+Destructor
+Destructor
+- c++ compiler have the concespt of Elide Constructor which is an optimization technique used by compilers to eliminate the copying and moving of objects where possible, which can significantly improve performance by reducing unnecessary operations.
+
+## overLoading assignment operator 
+```cpp
+     // Assignment Operator
+    String& operator=(const String& obj) {
+
+        // Self-assignment check
+        if (this == &obj) {
+            return *this;
+        }
+        // Clean before starting
+        delete this->str;
+        // Deep copy
+        this->size = obj.size;
+        this->str = new char[size];
+        std::strcpy(this->str, obj.str);
+
+        return *this;
+        }
+```
+## Value categories 
+```cpp
+#include <iostream>
+#include <type_traits>
+int& fun() {
+    static int moatasem = 5;
+    return moatasem;
+}
+//in Data segment 
+// a = 5
+
+int /*temp*/ fun2() {
+    static int a = 5;
+    return a;
+}
+
+int main() {
+    fun() /*Lvalue*/ = 10 /*Rvalue*/;
+    int x /*Lvalue*/ = fun() /*Rvalue*/;  // what is the fun return? Lvalue
+    x = 100;
+    std::cout << fun() << std::endl;
+    // fun2() /*Rvalue*/ = 10;  ERROR
+    int left = fun2();
+    return 0;
+}
+```
+```cpp
+#include <iostream>
+int main() {
+    std::string name = "moatasem";  // name is an lvalue
+    std::string name2 = std::move(name);  // name2 is now the owner of the string
+
+    std::cout << name2 << std::endl;  // it works, prints "moatasem"
+    std::cout << name << std::endl;   // it is empty, it is moved, so let's consider that name is now an xvalue
+
+    // Example with move semantics:
+    // T = A
+    // B = move(A)
+    // What is the value category of A and B?
+    // B is an lvalue
+    // A was lvalue then it is xvalue
+    return 0;
+}
+```
+#### Lvalue : it is one of the value category
+- name + address
+- example : name2
+#### Rvalue: it is one of the value category
+- temporary + no name
+- example : 4 , 3.5, fun2()
+#### Xvalue : it is one of the value category
+- Identity + moved
+<div style="display: flex;">
+  <img src="vauluetable.png" alt="Image 1" style="width: 45%; margin-right: 10px;">
+  <img src="values.png" alt="Image 2" style="width: 45%;">
+</div>
+
+#### More reading 
+- [Value Categories](https://en.cppreference.com/w/cpp/language/value_category)
+
+- [Type Categories](https://en.cppreference.com/w/cpp/language/type)
+
+
+
+
