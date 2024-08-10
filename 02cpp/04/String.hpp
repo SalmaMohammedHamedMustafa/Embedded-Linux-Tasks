@@ -23,6 +23,12 @@ public:
      * @param obj The string object to copy from.
      */
     String(const String &obj);
+    
+   /**
+     * @brief Move constructor to create a string from another string object.
+     * @param obj The string object to move from.
+     */
+    String(String &&obj);
 
     /**
      * @brief Destructor to free allocated memory.
@@ -54,6 +60,13 @@ public:
      * @return A reference to this string.
      */
     String& operator=(char* InputStr);
+
+    /**
+     * @brief moves this string to obj.
+     * @param obj The string object to move from.
+     * @return A reference to this string.
+     */
+    String& operator=(String&& obj);
 
     /**
      * @brief Concatenates another string object to this string.

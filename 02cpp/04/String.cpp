@@ -21,6 +21,16 @@ String::String(const String &obj) {
     str = new char[size]; // allocating in heap section respected to the size
     strcpy(str, obj.str); // copy data from obj.str to this->str
 }
+/*Move constructor*/
+String::String(String &&obj) {
+    // for the new instance
+    this->size = obj.size;
+    this->str = obj.str;
+    // for the old instance
+    obj.size = 0;
+    obj.str = nullptr;
+}
+
 /*destructor*/
 String::~ String()
 {
@@ -58,6 +68,21 @@ String& String::operator=(char* InputStr) {
     this->size = std::strlen(InputStr) + 1; 
     this->str = new char[size];
     std::strcpy(this->str, InputStr);
+    return *this;
+}
+String& String::operator=(String&& obj)
+{
+    if (*this == obj)
+    {
+        return *this;
+    }
+    // for the new instance
+    this->size = obj.size;
+    delete [] this->str;
+    this->str = obj.str;
+    // for the old instance
+    obj.size = 0;
+    obj.str = nullptr;
     return *this;
 }
 /*add operator overloading with another String object*/

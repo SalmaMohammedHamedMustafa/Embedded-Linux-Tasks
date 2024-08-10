@@ -1,4 +1,5 @@
 #include "String.hpp"
+#include <algorithm>
 #include <iostream>
 
 int main() {
@@ -8,7 +9,7 @@ int main() {
     char s4[] = "Apple";
     char s5[] = "Banana";
     
-    // Creating a String object using the parameterized constructor
+    /*// Creating a String object using the parameterized constructor
     String str1(s1);
     str1.printS(); // Output: Hello, World!
 
@@ -57,7 +58,14 @@ int main() {
 
     // Test += operator
     str1 += str2; // Concatenate str2 to str1
-    str1.printS(); // Output: Hello, World!Hello, World!
+    str1.printS(); // Output: Hello, World!Hello, World!*/
+    String str1(s1);
+
+    // Using the move constructor
+    String str2;
+    str2 = std::move(str1);
+    str2.printS(); // Output: Hello, World!
+    str1.printS(); //nothing will be printed
 
     return 0;
 }
