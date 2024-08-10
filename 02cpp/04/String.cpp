@@ -44,7 +44,7 @@ String& String::operator=(const String& obj) {
         return *this;
     }
     // Clean before starting
-    delete this->str;
+    delete []this->str;
     // Deep copy
     this->size = obj.size;
     this->str = new char[size];
@@ -54,7 +54,7 @@ String& String::operator=(const String& obj) {
 /*assignment operator overoading with a normal C string */
 String& String::operator=(char* InputStr) {
     // Clean before starting
-    delete this->str;
+    delete []this->str;
     this->size = std::strlen(InputStr) + 1; 
     this->str = new char[size];
     std::strcpy(this->str, InputStr);
