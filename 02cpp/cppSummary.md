@@ -1746,8 +1746,7 @@ int main() {
 }
 ```
 ```cpp
-// it can hold temporary also 
-// lvalue refrence
+// Rvalue refrence can hold temporary also 
 void fun(const int &x) {}
 
 int main() {
@@ -1759,3 +1758,80 @@ int main() {
     fun(ref); // ref is an lvalue
 }
 ```
+- from the **`String`** class example
+```cpp
+int main() {
+    /*
+    the type Category is Rvalue refrence
+    it just points to the temporary instance from the function 
+    that results in a performance enhancement*/
+    String &&t2(get_string());
+return 0;
+}
+```
+Sure! Here's a detailed explanation of the move constructor and move assignment operator implementations for your `String` class:
+
+## Move Constructor
+
+The move constructor is a special type of constructor used to transfer the resources of a temporary object (rvalue) to a new object. This avoids unnecessary copying, which can improve performance when dealing with resource-intensive objects. Here's a breakdown of your move constructor:
+
+```cpp
+String::String(String &&obj) {
+    // for the new instance
+    this->size = obj.size;
+    this->str = obj.str;
+    // for the old instance
+    obj.size = 0;
+    obj.str = nullptr;
+}
+```
+
+#### Explanation:
+
+- **Parameter**: `String &&obj` is an rvalue reference to the object that is being moved.
+- **New Instance Setup**:
+  - `this->size = obj.size;`: The size of the new instance is set to the size of the old instance. This transfers the size value from the old object to the new one.
+  - `this->str = obj.str;`: The `str` pointer of the new instance is set to the `str` pointer of the old instance, transferring ownership of the memory.
+- **Old Instance Cleanup**:
+  - `obj.size = 0;`: The size of the old instance is set to 0, marking it as an empty or default state.
+  - `obj.str = nullptr;`: The `str` pointer of the old instance is set to `nullptr`, ensuring the destructor of the old instance doesn't delete the memory that was just transferred.
+
+### Move Assignment Operator
+
+The move assignment operator is used to transfer resources from one object to another when both objects have already been constructed. This operator is similar to the move constructor but works with existing instances.
+
+```cpp
+String& String::operator=(String&& obj)
+{
+    if (*this == obj)
+    {
+        return *this;
+    }
+    // for the new instance
+    this->size = obj.size;
+    delete [] this->str;
+    this->str = obj.str;
+    // for the old instance
+    obj.size = 0;
+    obj.str = nullptr;
+    return *this;
+}
+```
+
+#### Explanation:
+
+- **Self-Assignment Check**:
+  - `if (*this == obj) { return *this; }`: Checks if the object being assigned to (`*this`) is the same as the object being moved from (`obj`). If so, it returns the current object to prevent unnecessary operations.
+  
+- **New Instance Setup**:
+  - `this->size = obj.size;`: Assigns the size from the `obj` to the current instance.
+  - `delete [] this->str;`: Frees the memory currently held by the `str` pointer in the current instance to prevent memory leaks.
+  - `this->str = obj.str;`: Transfers the `str` pointer from `obj` to the current instance, giving ownership of the memory.
+
+- **Old Instance Cleanup**:
+  - `obj.size = 0;`: Resets the size of the old instance to zero, marking it as empty.
+  - `obj.str = nullptr;`: Sets the `str` pointer of the old instance to `nullptr` to prevent the destructor from attempting to free the memory again.
+
+- **Return**:
+  - `return *this;`: Returns the current instance to allow for chained assignments.
+
