@@ -1918,3 +1918,273 @@ public:
 #### Use Cases:
 - **base_of_five_defaults** might be used when class instances need to be easily copied or moved, and the default behavior correctly handles all member data (like primitives, or simple aggregates of other classes that correctly handle their own copying and moving).
 - **MyBaseClass** might be used in contexts where class instances manage unique resources that require careful control over how they are handled, such as file handles or network connections, or when the class is used as a base class for a hierarchy representing non-copyable and non-movable entities.
+
+## C++ core guidlines
+- Avoid non-const global variables
+- Alternative: If you use global (more generally namespace scope) data to avoid copying, consider passing the data as an object by reference to const. Another solution is to define the data as the state of some object and the operations as member functions.
+
+## Inheritance
+- The idea of inheritance implements the is a relationship
+### Single Inheritance
+- Example
+```cpp
+#include <iostream>
+// Base class
+class Vehicle {
+public:
+std::string brand = "Ford";
+Vehicle (){
+    std::cout<<"Vehicle Constructor\n";
+}
+~ Vehicle (){
+    std::cout<<"Vehicle Destructor\n";
+}
+void honk() {
+std::cout << "Tuut, tuut! \n" ;}
+
+};
+
+// Derived class
+class Car: public Vehicle {
+public:
+Car()
+{
+    std::cout<<"Car Constructor\n";
+}
+~Car()
+{
+    std::cout<<"Car Destructor\n";
+}
+std::string model = "Mustang";
+};
+
+int main() {
+Car myCar;
+myCar.honk() ;
+std::cout << myCar.brand <<" \n";
+return 0;
+}
+```
+- output:
+Vehicle Constructor
+Car Constructor
+Tuut, tuut! 
+Ford 
+Car Destructor
+Vehicle Destructor
+
+### Multilevel Inheritance
+- Example
+```cpp
+#include <iostream>
+
+class Base {
+public:
+    // Constructor
+    Base() {
+        std::cout << "Base Constructor" << std::endl;
+    }
+    
+    // Destructor
+    ~Base() {
+        std::cout << "Base Destructor" << std::endl;
+    }
+
+    void fun() {
+        std::cout << "Base fun" << std::endl;
+    }
+};
+
+class child1 : public Base {
+public:
+    // Constructor
+    child1() {
+        std::cout << "child1 Constructor" << std::endl;
+    }
+    // Destructor
+    ~child1() {
+        std::cout << "child1 Destructor" << std::endl;
+    }
+    void fun() {
+        std::cout << "child fun" << std::endl;
+    }
+};
+
+class child2 : public child1 {
+public:
+    // Constructor
+    child2() {
+        std::cout << "child2 Constructor" << std::endl;
+    }
+    // Destructor
+    ~child2() {
+        std::cout << "child2 Destructor" << std::endl;
+    }
+};
+
+int main() {
+    child2 obj;   // Constructs child2, which constructs child1 and Base
+    obj.fun();    // Calls child1's fun
+    obj.Base::fun(); // Calls Base's fun
+    return 0;
+}
+```
+- output:
+Base Constructor
+child1 Constructor
+child2 Constructor
+child fun
+Base fun
+child2 Destructor
+child1 Destructor
+Base Destructor
+
+### Multiple inheritance
+```cpp
+#include <iostream>
+
+class Base {
+public:
+    // Constructor
+    Base() {
+        std::cout << "Base Constructor" << std::endl;
+    }
+    
+    // Destructor
+    ~Base() {
+        std::cout << "Base Destructor" << std::endl;
+    }
+    
+    void fun() {
+        std::cout << "Base fun" << std::endl;
+    }
+};
+
+class Base2 {
+public:
+    // Constructor
+    Base2() {
+        std::cout << "Base2 Constructor" << std::endl;
+    }
+    
+    // Destructor
+    ~Base2() {
+        std::cout << "Base2 Destructor" << std::endl;
+    }
+    
+    void fun() {
+        std::cout << "Base2 fun" << std::endl;
+    }
+};
+
+class child2 : public Base, public Base2 {
+public:
+    // Constructor
+    child2() {
+        std::cout << "child2 Constructor" << std::endl;
+    }
+    
+    // Destructor
+    ~child2() {
+        std::cout << "child2 Destructor" << std::endl;
+    }
+};
+
+int main() {
+    child2 obj;          // Constructs child2, which constructs Base and Base2
+    obj.Base::fun();    // Calls Base's fun
+    obj.Base2::fun();   // Calls Base2's fun
+
+    return 0;
+}
+```
+- If you didn't tell wich fun to use that will result in an error (Ambiguous function call)
+- output: 
+Base Constructor
+Base2 Constructor
+child2 Constructor
+Base fun
+Base2 fun
+child2 Destructor
+Base2 Destructor
+Base Destructor
+
+### Hybrid Inheritance 
+
+- Hybrid inheritance in C++ is a combination of more than one type of inheritance. The provided code snippets demonstrate hybrid inheritance with and without virtual inheritance, and the implications of each approach.
+
+#### Without Virtual Inheritance
+
+```cpp
+class ClassA {
+public:
+    int a;
+};
+
+class ClassB : public ClassA {
+public:
+    int b;
+};
+
+class ClassC : public ClassA {
+public:
+    int c;
+};
+
+class ClassD : public ClassB, public ClassC {
+public:
+    int d;
+};
+
+int main() {
+    ClassD obj;
+    // obj.a = 10;  // Statement 1, Error
+    // obj.a = 100; // Statement 2, Error
+
+    obj.ClassB::a = 10; // Statement 3
+    obj.ClassC::a = 100; // Statement 4
+}
+```
+
+- **Explanation**:
+  - `ClassD` inherits from both `ClassB` and `ClassC`.
+  - Since `ClassB` and `ClassC` both inherit from `ClassA`, `ClassD` ends up with two copies of `ClassA` (one from each path).
+  - This leads to ambiguity when accessing members of `ClassA` through `ClassD`.
+  - For example, `obj.a = 10;` (Statement 1) results in a compilation error due to ambiguity.
+  - To resolve this, the members of `ClassA` must be accessed explicitly through `ClassB` or `ClassC`, as shown in Statements 3 and 4.
+
+#### With Virtual Inheritance
+
+```cpp
+class ClassA {
+public:
+    int a;
+};
+
+class ClassB : virtual public ClassA {
+public:
+    int b;
+};
+
+class ClassC : virtual public ClassA {
+public:
+    int c;
+};
+
+class ClassD : public ClassB, public ClassC {
+public:
+    int d;
+};
+
+int main() {
+    ClassD obj;
+
+    obj.a = 10;  // Statement 3
+    obj.a = 100; // Statement 4
+}
+```
+
+- **Explanation**:
+  - Here, `ClassB` and `ClassC` inherit `ClassA` using virtual inheritance.
+  - Virtual inheritance ensures that there is only one instance of `ClassA` in `ClassD`, eliminating ambiguity.
+  - Statements 3 and 4 compile without error because `obj.a` refers to the single instance of `ClassA` that is shared between `ClassB` and `ClassC`.
