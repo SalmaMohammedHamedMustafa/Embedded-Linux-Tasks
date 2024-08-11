@@ -1835,3 +1835,86 @@ String& String::operator=(String&& obj)
 - **Return**:
   - `return *this;`: Returns the current instance to allow for chained assignments.
 
+Here's a markdown explanation for the concepts of the Rule of Five and Rule of Zero in C++ as outlined in the slides:
+
+---
+
+## The Rule of Five
+
+The Rule of Five is an extension of the Rule of Three in C++. It dictates that if a class manages resources (such as dynamic memory, file handles, network connections, etc.), and it defines one of the following special member functions, it should define all five to ensure correct copy semantics and resource management:
+
+- **Copy Constructor:** Creates a new object as a copy of an existing object. It must also copy the resources to ensure that each object manages a separate copy of the resource.
+
+- **Copy Assignment Operator:** Assigns the contents of one object to another existing object. Similar to the copy constructor, it must handle the resources carefully to avoid resource leaks and ensure that each object maintains a separate copy.
+
+- **Destructor:** Frees the resources owned by the object when it goes out of scope or is deleted. It is crucial for avoiding resource leaks.
+
+- **Move Constructor:** Transfers the resources from a temporary object (rvalue) to a new object. This is more efficient than copying for temporary objects.
+
+- **Move Assignment Operator:** Transfers resources from one object to another existing object, typically when dealing with temporary values. This should also clean up the resources of the assigned object before the transfer.
+
+These five functions are essential for safe and efficient management of resources in user-defined types, ensuring deep copying and proper move semantics.
+
+## Rule of Zero
+
+The Rule of Zero complements the Rule of Five by promoting the use of system-defined versions of resource management functions. According to this rule, classes that do not manage any resources should not define custom destructors, copy/move constructors, or copy/move assignment operators. Instead, they should rely on the default versions provided by the compiler.
+
+**Implications:**
+- **Encourages Simplicity:** By relying on compiler-generated functions, code remains simple and less prone to errors associated with manual resource management.
+- **Use of Smart Pointers:** This rule encourages the use of standard library types like `std::unique_ptr` or `std::shared_ptr` for resource management, which automatically handle resource allocation and deallocation.
+- **Maintainability and Safety:** Reduces boilerplate code and makes the class naturally safe against memory leaks, dangling pointers, and other resource mismanagement issues.
+
+**Example:**
+
+```cpp
+class RuleOfZeroExample {
+public:
+    std::string name;  // Uses default destructor, copy/move constructors, and copy/move assignment operators
+};
+```
+
+When a class does not manage any resources directly (it contains objects such as `std::string` or smart pointers that manage resources themselves), it should not define any of the five special member functions, allowing the class to be simpler and safer.
+
+The code snippets you've shown demonstrate two different approaches to managing class functions in C++. Let's break down each one:
+
+### Base of Five Defaults
+
+```cpp
+class base_of_five_defaults
+{
+public:
+    base_of_five_defaults(const base_of_five_defaults&) = default;
+    base_of_five_defaults(base_of_five_defaults&&) = default;
+    base_of_five_defaults& operator=(const base_of_five_defaults&) = default;
+    base_of_five_defaults& operator=(base_of_five_defaults&&) = default;
+    virtual ~base_of_five_defaults() = default;
+};
+```
+
+#### Explanation:
+- This class explicitly defaults all five of the special member functions (copy constructor, move constructor, copy assignment operator, move assignment operator, and destructor). 
+- Marking these as `default` tells the compiler to generate the default implementations for these functions. This approach is used when the default behavior (shallow copying for constructors and assignment operators, doing nothing for the destructor) is suitable for the class.
+- The destructor is declared as `virtual`, which is crucial for a class intended to be a base class. This ensures that the destructor of any derived class will be called, even when an object is deleted through a pointer of this base class type, enabling proper cleanup of derived class resources.
+
+### MyBaseClass
+
+```cpp
+class MyBaseClass
+{
+public:
+    virtual ~MyBaseClass() = default;
+    MyBaseClass(MyBaseClass const &) = delete;
+    MyBaseClass(MyBaseClass &&) = delete;
+    MyBaseClass& operator=(MyBaseClass const &) = delete;
+    MyBaseClass& operator=(MyBaseClass &&) = delete;
+};
+```
+
+#### Explanation:
+- This class takes a different approach by deleting the copy and move constructors, as well as the copy and move assignment operators. This means objects of this class cannot be copied or moved.
+- Deleting these functions is useful when the class manages resources that should not be copied or moved automatically, or when the class should be unique and not shareable.
+- The destructor is defaulted and virtual. Defaulting the destructor is sufficient for classes that do not need to perform any special cleanup upon object destruction, but making it virtual ensures that any subclass destructors are called appropriately.
+
+#### Use Cases:
+- **base_of_five_defaults** might be used when class instances need to be easily copied or moved, and the default behavior correctly handles all member data (like primitives, or simple aggregates of other classes that correctly handle their own copying and moving).
+- **MyBaseClass** might be used in contexts where class instances manage unique resources that require careful control over how they are handled, such as file handles or network connections, or when the class is used as a base class for a hierarchy representing non-copyable and non-movable entities.
