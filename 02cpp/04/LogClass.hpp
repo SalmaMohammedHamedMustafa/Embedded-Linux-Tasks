@@ -1,5 +1,9 @@
+#ifndef LOGGER_H
+#define LOGGER_H
+
 #include <string>
 #include <vector>
+
 /**
  * @class Logger
  * @brief Handles logging of messages at various severity levels.
@@ -79,3 +83,5 @@ private:
      */
     std::string FormatMessage(int level, const std::string& message);
 };
+
+#endif // LOGGER_H

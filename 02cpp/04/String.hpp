@@ -1,3 +1,6 @@
+#ifndef STRING_H
+#define STRING_H
+
 /**
  * @brief Class representing a dynamic string.
  */
@@ -23,8 +26,8 @@ public:
      * @param obj The string object to copy from.
      */
     String(const String &obj);
-    
-   /**
+
+    /**
      * @brief Move constructor to create a string from another string object.
      * @param obj The string object to move from.
      */
@@ -62,7 +65,7 @@ public:
     String& operator=(char* InputStr);
 
     /**
-     * @brief moves this string to obj.
+     * @brief Moves this string to obj.
      * @param obj The string object to move from.
      * @return A reference to this string.
      */
@@ -145,3 +148,5 @@ public:
      */
     bool operator>=(const String& obj) const;
 };
+
+#endif // STRING_H
