@@ -2188,3 +2188,81 @@ int main() {
   - Here, `ClassB` and `ClassC` inherit `ClassA` using virtual inheritance.
   - Virtual inheritance ensures that there is only one instance of `ClassA` in `ClassD`, eliminating ambiguity.
   - Statements 3 and 4 compile without error because `obj.a` refers to the single instance of `ClassA` that is shared between `ClassB` and `ClassC`.
+
+
+
+# C++ String 
+## Code
+```cpp
+#include <iostream>
+#include <string>
+
+void string_functions() {
+    std::string s = "Hello, World!";
+
+    // Print the size of the string
+    std::cout << s.size() << std::endl;
+
+    // Print the length of the string
+    std::cout << s.length() << std::endl;
+
+    // Print the capacity of the string
+    std::cout << s.capacity() << std::endl; // Capacity is the internal storage allocated for the string
+
+    // Print the maximum size the string can grow to
+    std::cout << s.max_size() << std::endl;
+
+    // Finding a substring
+    auto it = s.find("World");
+    if (it == std::string::npos) {
+        std::cout << "not found" << std::endl;
+    } else {
+        std::cout << "found at " << it << std::endl;
+    }
+
+    // Extract a substring starting at position 7 with length 5
+    std::cout << s.substr(7, 5) << std::endl;
+
+    // Replace part of the string starting at position 7, removing 5 characters, and inserting "C++"
+    s.replace(7, 5, "C++");
+    std::cout<<s<<"\n";
+
+    // Insert "World" at the end of the string
+    s.insert(s.length(), "World");
+    std::cout<<s<<"\n";
+
+    // Erase 3 characters starting from position 7
+    s.erase(7, 3);
+    std::cout<<s<<"\n";
+
+    // Append "!" to the string
+    s.append("!");
+    std::cout<<s<<"\n";
+
+    // Attempt to resize the string to length 5 and fill with 'a'
+    s.resize(5, 'a');
+    
+
+    // Print the final string
+    std::cout << s << std::endl;
+}
+
+int main() {
+    string_functions();
+    return 0;
+}
+```
+
+## Explanation
+
+- **`s.size()` and `s.length()`**: Both return the number of characters in the string.
+- **`s.capacity()`**: Returns the size of the storage space currently allocated to the string, which may be equal or greater than the string size.
+- **`s.max_size()`**: Returns the maximum possible number of characters that the string can hold.
+- **`s.find("World")`**: Searches for the substring "World" in `s` and returns the position of the first character of the substring. If the substring is not found, it returns `std::string::npos`.
+- **`s.substr(7, 5)`**: Extracts a substring from `s` starting at position 7 with a length of 5 characters.
+- **`s.replace(7, 5, "C++")`**: Replaces 5 characters in `s` starting at position 7 with "C++".
+- **`s.insert(s.length(), "World")`**: Inserts "World" at the end of the string.
+- **`s.erase(7, 3)`**: Removes 3 characters from `s` starting at position 7.
+- **`s.append("!")`**: Appends the character "!" to the end of the string.
+- **`s.resize(5, 'a')`**: Resizes the string to a length of 5. If the current length is shorter, 'a' is used to fill the additional spaces.
+
