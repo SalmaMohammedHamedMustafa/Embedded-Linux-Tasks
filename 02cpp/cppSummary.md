@@ -2191,8 +2191,10 @@ int main() {
 
 
 
-# C++ String 
-## Code
+# STL
+## Containters
+### Strings
+#### Code
 ```cpp
 #include <iostream>
 #include <string>
@@ -2253,7 +2255,7 @@ int main() {
 }
 ```
 
-## Explanation
+#### Explanation
 
 - **`s.size()` and `s.length()`**: Both return the number of characters in the string.
 - **`s.capacity()`**: Returns the size of the storage space currently allocated to the string, which may be equal or greater than the string size.
@@ -2266,3 +2268,169 @@ int main() {
 - **`s.append("!")`**: Appends the character "!" to the end of the string.
 - **`s.resize(5, 'a')`**: Resizes the string to a length of 5. If the current length is shorter, 'a' is used to fill the additional spaces.
 
+Here's an explanation of the concepts shown in the image in Markdown format:
+
+---
+
+#### Joining String Literals
+
+In C++, when string literals are only separated by whitespace, the compiler automatically joins them into a single string. This is a convenient feature for organizing long strings across multiple lines for readability. Here’s how it works:
+
+#####Example
+
+```cpp
+std::string s = 
+    "This is one literal "
+    "split into several "
+    "source code lines!";
+```
+
+The above code will result in `s` being `"This is one literal split into several source code lines!"`.
+
+#### Raw String Literals
+
+Raw string literals are a feature introduced in C++11 that allows you to include special characters in strings without needing to escape them. This is particularly useful for strings containing characters like backslashes or quotes, which typically require escaping.
+
+##### Syntax
+
+The syntax for a raw string literal is:
+
+```
+R"delimiter(characters...)delimiter"
+```
+
+Where `delimiter` is a sequence of 0 to 16 characters (excluding spaces, parentheses, and backslashes) that serves as a boundary between the raw string content and the rest of the code.
+
+##### Example
+
+```cpp
+const char* path = R"(C:\users\joe)";
+std::string raw_str = R"delim(raw "std"-string c:\users\moe)delim";
+```
+#### Update the string class
+- we can add methods to the string class
+##### Exmaple
+```cpp
+#include <iostream>
+#include <algorithm>
+#include <string>
+
+class EnhancedString : public std::string {
+public:
+    // Inherit constructors from std::string
+    using std::string::string;
+
+    void reverse() { 
+        std::reverse(this->begin(), this->end()); 
+    }
+
+    void toUpperCase() {
+        std::transform(this->begin(), this->end(), this->begin(), ::toupper);
+    }
+
+    void toLowerCase() {
+        std::transform(this->begin(), this->end(), this->begin(), ::tolower);
+    }
+
+    template <typename T> 
+    T from() { 
+        return T(); 
+    }
+};
+
+template <> 
+int EnhancedString::from<int>() { 
+    return std::stoi(*this); 
+}
+
+template <> 
+float EnhancedString::from<float>() { 
+    return std::stof(*this); 
+}
+
+int main() {
+    EnhancedString str("Hello World");
+    str.toUpperCase(); // HELLO WORLD
+    std::cout << str << std::endl;
+
+    str.reverse(); // DLROW OLLEH
+    std::cout << str << std::endl;
+
+    str.toLowerCase(); // dlrow olleh
+    std::cout << str << std::endl;
+
+    EnhancedString str2("123");
+    std::cout << str2.from<int>() << std::endl; // 123
+
+    str2.assign("123.5");
+    std::cout << str2.from<float>() << std::endl; // 123.5
+
+    return 0;
+}
+```
+#### geline()
+- you can read strings using getline
+```cpp
+std::string s;
+getline(std::cin, s); // read entire line
+getline(std::cin, 5s, '\t'); // read until next tab
+getline(std::cin, s, ‘a'); // read until next ‘a’
+```
+### C++ core guidelines
+ 
+- SL.con.2: Prefer using STL vector by default unless you have a reason
+to use a different container
+
+- vector and array are the only standard containers that offer the following
+advantages:
+-  the fastest general-purpose access (random access, including being vectorization-
+friendly);
+- the fastest default access pattern (begin-to-end or end-to-begin is prefetcher-
+friendly);
+- the lowest space overhead (contiguous layout has zero per-element overhead, which
+is cache-friendly).
+
+- Usually you need to add and remove elements from the container, so use vector by
+default; if you don’t need to modify the container’s size, use array.
+
+### C++ Arrays
+- like c arrays but with some methods
+```cpp
+#include <iostream>
+#include <array>
+int main()
+{
+    std::array <int,5> numbers = {1,2,3,4,5};
+}
+```
+### std::vectors
+```cpp
+#include <iostream>
+#include <vector>
+#include <array>
+#include <utility>
+#include <initializer_list>
+
+int main() {
+    std::vector<int> vec1; // default constructor, creates an empty vector
+
+    std::vector<int> vec2(5); // {0,0,0,0,0}
+
+    std::vector<int> vec3(3, 10); // {10,10,10}
+
+    std::array<int, 5> arr = {1, 2, 3, 4, 5};
+    std::vector<int> vec4(arr.begin(), arr.end()); // constructor with iterators, creates a vector with elements from the array
+
+    std::vector<int> vec5(vec4); // copy constructor, creates a vector with the same elements as vec4
+
+    std::vector<int> vec6(std::move(vec5)); // move constructor, creates a vector by moving the elements from vec5
+
+    std::initializer_list<int> initList = {1, 2, 3, 4, 5};
+    std::vector<int> vec7(initList);
+
+    return 0;
+}
+```
+### Best way to study rest of the containers 
+
+- [hackingcpp containers](https://hackingcpp.com/cpp/std/containers.html)
