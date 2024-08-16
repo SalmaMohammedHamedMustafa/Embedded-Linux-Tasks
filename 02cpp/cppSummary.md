@@ -2189,7 +2189,83 @@ int main() {
   - Virtual inheritance ensures that there is only one instance of `ClassA` in `ClassD`, eliminating ambiguity.
   - Statements 3 and 4 compile without error because `obj.a` refers to the single instance of `ClassA` that is shared between `ClassB` and `ClassC`.
 
+### abstract class and interface class 
+- you cannot creat instanse from the abtract or interface classes 
+- abstract class example
+```cpp
+#include <iostream>
+#include <fstream>
+#include <stdexcept>
+#include <string>
 
+class Logger {
+public:
+    enum Level { Info, Warning, Error };
+    static constexpr const char *PASSWORD = "Moatasem";
+
+    virtual void log(Level level, const std::string &message) = 0;
+    void help() { std::cout << "help" << std::endl; }
+};
+
+class FileSystem : public Logger {
+public:
+    FileSystem(std::string password) {
+        if (password != Logger::PASSWORD) {
+            throw std::runtime_error("Invalid password");
+        }
+    }
+
+    void log(Level level, const std::string &message) override {
+        std::fstream fs("log.txt", std::ios::app);
+        fs << message << std::endl;
+        fs.close();
+    }
+};
+
+int main() {
+    // Calling the base class constructor explicitly using 'using'
+    FileSystem log_handler(Logger::PASSWORD);
+
+    log_handler.log(Logger::Level::Info, "This is an info message");
+    return 0;
+}
+```
+- interface class example
+```cpp
+#include <iostream>
+
+class Shape {
+public:
+    virtual void draw() = 0; // Pure virtual function, making Shape an abstract class
+};
+
+class Circle : public Shape {
+public:
+    void draw() override {
+        std::cout << "Drawing a circle." << std::endl;
+    }
+};
+
+class Square : public Shape {
+public:
+    void draw() override {
+        std::cout << "Drawing a square." << std::endl;
+    }
+};
+
+int main() {
+    Circle circle;
+    Square square;
+
+    Shape* shapes[] = { &circle, &square };
+
+    for (Shape* shape : shapes) {
+        shape->draw(); // Using abstraction to draw different shapes
+    }
+
+    return 0;
+}
+```
 
 # STL
 ## Containters
