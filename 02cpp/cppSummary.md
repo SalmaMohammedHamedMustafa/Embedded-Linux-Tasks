@@ -2507,6 +2507,130 @@ int main() {
     return 0;
 }
 ```
+### Associative containers Vs unordered Associative containers
+- This means that the elements in a container are sorted according to a strict weak ordering criterion indicated by its comparison function(tree).
+- while the elements in an unordered_map are not ordered and can be retrieved in any order(hash table)
+#### Associative Containers
+
+Associative containers store elements in a sorted order based on their keys. Some commonly used associative containers in C++ are:
+
+- `std::set`: Stores a collection of unique elements in a sorted order.
+- `std::map`: Stores key-value pairs in a sorted order based on the keys.
+- `std::multiset`: Stores a collection of elements in a sorted order, allowing duplicates.
+- `std::multimap`: Stores key-value pairs in a sorted order based on the keys, allowing duplicates.
+
+These containers provide efficient search, insertion, and deletion operations, but they have a higher memory overhead compared to unordered containers.
+
+#### Unordered Containers
+
+Unordered containers store elements in an unordered manner (Hash yable based), providing fast access to elements based on their keys. Some commonly used unordered containers in C++ are:
+
+- `std::unordered_set`: Stores a collection of unique elements in an unordered manner.
+- `std::unordered_map`: Stores key-value pairs in an unordered manner.
+- `std::unordered_multiset`: Stores a collection of elements in an unordered manner, allowing duplicates.
+- `std::unordered_multimap`: Stores key-value pairs in an unordered manner, allowing duplicates.
+
+These containers provide constant-time average complexity for search, insertion, and deletion operations, but they have a slightly higher memory overhead compared to associative containers.
+
+### Difference between set and multiset
+
+- `set` and `multiset` are both associative containers in C++ that store elements in a sorted order based on their keys.
+- The main difference between `set` and `multiset` is that `set` only allows unique elements, while `multiset` allows duplicate elements.
+- In a `set`, each element is unique, and duplicate elements are automatically rejected when inserting.
+- In a `multiset`, duplicate elements are allowed, and all elements are stored in the container.
+- Both `set` and `multiset` provide efficient search, insertion, and deletion operations, with a time complexity of O(log n) on average.
+- When searching for an element in a `set`, it returns either 0 or 1, indicating whether the element is present or not.
+- When searching for an element in a `multiset`, it returns the count of occurrences of that element.
+- `set` is commonly used when uniqueness is required, while `multiset` is used when duplicate elements need to be stored.
+- The choice between `set` and `multiset` depends on the specific requirements of the problem at hand.
+
+### map
+
+The `map` container in C++ is an associative container that stores key-value pairs. It is implemented as a balanced binary search tree, which allows for efficient search, insertion, and deletion operations.
+
+Here are some key features of the `map` container:
+
+- Each element in the `map` is a pair consisting of a key and a value.
+- The keys in a `map` are unique, meaning that no two elements can have the same key.
+- The elements in a `map` are automatically sorted based on the keys.
+- The keys in a `map` are constant, meaning that they cannot be modified once they are inserted.
+- The values in a `map` can be modified.
+
+Here's an example of how to use the `map` container:
+
+```cpp
+#include <iostream>
+#include <map>
+
+int main() {
+    std::map<int, std::string> studentMap;
+
+    // Inserting elements into the map
+    studentMap.insert(std::make_pair(1, "John"));
+    studentMap.insert(std::make_pair(2, "Alice"));
+    studentMap.insert(std::make_pair(3, "Bob"));
+
+    // Accessing elements in the map
+    std::cout << "Student with ID 2: " << studentMap[2] << std::endl;
+
+    // Modifying values in the map
+    studentMap[3] = "Charlie";
+
+    // Iterating over the elements in the map
+    for (const auto& pair : studentMap) {
+        std::cout << "ID: " << pair.first << ", Name: " << pair.second << std::endl;
+    }
+
+    return 0;
+}
+```
+### multimap
+```cpp
+#include <iostream>
+#include <map>
+
+int main() {
+    // Create a multimap
+    std::multimap<int, std::string> myMultimap;
+
+    // Insert elements into the multimap
+    myMultimap.insert(std::make_pair(1, "Apple"));
+    myMultimap.insert(std::make_pair(2, "Banana"));
+    myMultimap.insert(std::make_pair(2, "Blueberry"));
+    myMultimap.insert(std::make_pair(3, "Cherry"));
+
+    //myMultimap[1] = "blueberry";    //ERROR: multimap does not support [] operator
+    // Iterate over the multimap and print its contents
+    for (const auto& pair : myMultimap) {
+        std::cout << pair.first << ": " << pair.second << std::endl;
+    }
+
+    // Find all elements with key 2
+    auto range = myMultimap.equal_range(2);
+    std::cout << "Elements with key 2:" << std::endl;
+    for (auto it = range.first; it != range.second; ++it) {
+        std::cout << it->first << ": " << it->second << std::endl;
+    }
+
+    return 0;
+}
+```
 ### Best way to study rest of the containers 
 
 - [hackingcpp containers](https://hackingcpp.com/cpp/std/containers.html)
+
+
+## Algorithms
+- Iterator ranges
+- begin: pointer to te first element
+- end: pointer to the element after the last element
+### Best way to understand algorithms
+- [hackingcpp algorithms](https://hackingcpp.com/cpp/std/algorithms.html)
+
+### Notes
+- To effectively remove elements from a C++ vector using std::remove
+```cpp
+ // std::remove  removes all occurrences of value
+ // std::erase erases the "removed" elements
+v.erase(std::remove(v.begin(), v.end(), value), v.end());
+```
