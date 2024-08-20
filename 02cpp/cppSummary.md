@@ -2621,7 +2621,7 @@ int main() {
 
 
 ## Algorithms
-- Iterator ranges
+### Iterator ranges
 - begin: pointer to te first element
 - end: pointer to the element after the last element
 ### Best way to understand algorithms
@@ -2634,3 +2634,380 @@ int main() {
  // std::erase erases the "removed" elements
 v.erase(std::remove(v.begin(), v.end(), value), v.end());
 ```
+
+## Try/Catch
+
+### Overview
+- **Exceptions** in C++ are used for handling errors or other exceptional conditions that disrupt the normal flow of a program.
+- The **C++ standard library** uses inheritance in its exception handling, where all standard exception types are derived from `std::exception`.
+
+### Standard Exception Types
+- Some common exception types include:
+  - `std::logic_error`: For logical errors (e.g., incorrect use of a function).
+  - `std::domain_error`: Thrown when a mathematical domain error occurs.
+  - `std::invalid_argument`: Thrown for invalid arguments.
+  - `std::out_of_range`: Thrown when an argument is out of a valid range.
+  - `std::runtime_error`: For runtime errors that aren't necessarily logic errors.
+  - `std::overflow_error`: For arithmetic overflow.
+  - `std::underflow_error`: For arithmetic underflow.
+
+### Example of Handling Exceptions
+```cpp
+try {
+    throw std::domain_error("Error Text");
+} 
+catch (std::invalid_argument const& e) {
+    // Handle only invalid_argument exception
+} 
+catch (std::exception const& e) {
+    // Catch all other std exceptions
+    std::cout << e.what(); // Outputs the exception message
+}
+```
+- In this code, there is a try block that contains the code that might throw an exception. In this case, the code is throwing a std::domain_error exception with the message "Error Text".
+- Following the try block, there are two catch blocks. The first catch block catches the std::invalid_argument exception. If this exception is thrown, the code inside this block will be executed. This allows you to handle specific exceptions differently.
+- The second catch block catches the std::exception base class, which is a catch-all for any other standard exceptions that are not caught by the previous catch blocks. Inside this block, the code outputs the exception message using e.what(). The what() function returns a string that describes the exception.
+- By using multiple catch blocks, you can handle different types of exceptions separately and provide appropriate error handling or recovery mechanisms based on the specific exception type.
+- It's important to note that the order of the catch blocks is significant. If the order of the catch blocks were reversed, the std::invalid_argument catch block would never be reached because std::invalid_argument is derived from std::exception.
+- output: Caught exception: Error Text
+
+### Using Wide Contract Functions
+- **Wide contract functions** in the standard library, such as `std::vector::at`, offer safety by throwing exceptions when invalid input is provided.
+- Example:
+  ```cpp
+  std::vector<int> v = {0, 1, 2, 3};
+  int x = v.at(6); // Throws std::out_of_range
+  ```
+### Main and Exception Handling
+- **Exception Handling in `main()`**: You can wrap the entire `main()` function with a `try-catch` block to catch and handle any exceptions that occur during the program's execution.
+- Example:
+  ```cpp
+  void fun() { throw "test"; }
+  
+  int main() try {
+      fun();
+      return 0;
+  } 
+  catch (const char* e) // catches any type of exceptions
+  {
+      std::cout << e << std::endl; // Outputs: test
+  }
+  ```
+
+### Re-Throwing Exceptions
+- **Re-throwing** an exception allows it to propagate up to a higher level of the program, where it can be handled in a broader context.
+- Example:
+  ```cpp
+  try {
+      // potentially throwing code
+  } 
+  catch (std::exception const& e) {
+      throw; // Re-throw the caught exception
+  }
+  ```
+
+### Centralized Exception Handling
+- **Centralizing exception handling** avoids duplicating code when the same exception types are thrown in different parts of a program. 
+- This approach is useful when converting exceptions into error codes or performing uniform logging of errors.
+- Example:
+  ```cpp
+  void handle_init_errors() {
+      try { throw; } // Re-throw
+      catch (err::device_unreachable const& e) { ... }
+      catch (err::bad_connection const& e) { ... }
+  }
+
+  void initialize_server() {
+      try { ... }
+      catch (...) { handle_init_errors(); }
+  }
+  ```
+
+### Catching All Exceptions
+- To handle all exceptions (including unknown ones), you can use an ellipsis `...` in a `catch` block.
+- Example:
+  ```cpp
+  try {
+      // potentially throwing code
+  } 
+  catch (...) {
+      // Handle any type of exception
+  }
+  ```
+
+  Here’s an explanation of the two slides about **Namespaces** and **Namespace Aliases** in Markdown format:
+
+---
+
+## NameSpace
+
+### Overview
+- **Namespaces** are used in C++ to avoid name collisions and organize code into distinct logical parts, especially in large projects where multiple libraries might define classes, functions, or variables with the same name.
+
+### Basic Usage
+- You can define a namespace using the `namespace` keyword:
+  ```cpp
+  namespace my {
+      class vector { /*...*/ };
+  }
+  ```
+  - In this example, the `vector` class is part of the `my` namespace.
+
+- **Using Namespaces:**
+  - If you want to use the `vector` 55555 from the `my` namespace, you have to qualify it with the namespace:
+    ```cpp
+    my::vector v2;
+    ```
+  - This ensures that there is no confusion with other `vector` classes (e.g., `std::vector`).
+
+### Multiple Files
+- Namespaces can be split across multiple files:
+  - `vec.h` might define a `vector` class in the `my` namespace.
+  - `set.h` might define a `set` class in the same `my` namespace and another function `cut` in the `tools` namespace.
+  - In `main.cpp`, you can include these headers and use the classes/functions with their respective namespace qualifiers.
+
+### Nested Namespaces
+- C++ supports nested namespaces, where you define a namespace within another namespace:
+  ```cpp
+  namespace std {
+      namespace chrono {
+          class system_clock { /*...*/ };
+      }
+  }
+  ```
+  - To access `system_clock`, you would use the fully qualified name:
+    ```cpp
+    auto t1 = std::chrono::system_clock::now();
+    ```
+
+### Using Declarations
+
+- You can make a single symbol usable without fully qualifying it using the `using` keyword:
+
+  ```cpp
+  using std::chrono::system_clock;
+  auto t1 = system_clock::now();
+  ```
+
+### Namespace Aliases
+
+- **Namespace Aliases** allow you to create shorter or more convenient names for namespaces, making the code cleaner and easier to read.
+
+- **Defining an Alias:**
+  - You can define an alias for a namespace like this:
+
+    ```cpp
+    namespace sc = std::chrono;
+    auto t1 = sc::system_clock::now();
+    ```
+
+  - In this example, `sc` is an alias for `std::chrono`, so you can access `system_clock` through `sc` instead of typing out the full `std::chrono` each time.
+
+# RAII
+
+- RAII ensures that resources, such as memory or file handles, are properly managed and released when they are no longer needed, regardless of how the block of code exits (e.g., through normal execution, exceptions, or early returns).
+- This helps prevent resource leaks and makes code more robust and easier to maintain.
+- In C++, RAII is commonly implemented using constructors and destructors of objects. When an object is created, it acquires the necessary resources, and when it goes out of scope or is explicitly destroyed, it releases the resources.
+- By using RAII, the burden of managing resources is shifted from the programmer to the language itself, resulting in safer and more reliable code.
+Here's an explanation of the RAII (Resource Acquisition Is Initialization) concept based on the image, formatted as a markdown file:
+
+## RAII vs C-style Resource Handling
+
+### C-style Resource Handling Example
+
+In traditional C-style programming, resources such as file handles or database connections are managed manually. Below is an example:
+
+```cpp
+void add_to_database(database const& db, std::string_view filename) {
+    DBHandle h = open_database_connection(db);
+    auto f = open_file(filename);
+    
+    // If 'open_file' throws an exception, the connection is not closed!
+    
+    // Perform operations...
+    
+    close_database_connection(h); // This might not be reached if an exception is thrown
+}
+```
+
+### Problems with C-style Resource Handling
+
+- **Exception Safety**: If an exception occurs (e.g., when opening a file), the function may not reach the cleanup code (`close_database_connection(h)`), leading to resource leaks.
+- **Manual Management**: The programmer must manually ensure that each resource is released, increasing the chance of errors.
+
+### Manual Memory Management
+
+#### Heap Allocation
+
+When you allocate memory on the heap using `new`, you create a pointer that "owns" that memory:
+
+```cpp
+int* p = new int(5);
+delete p; // Frees the allocated memory
+```
+
+- **Ownership**: The pointer `p` is an owning raw pointer, meaning it is responsible for managing the memory it points to.
+
+#### Array Allocation
+
+Similarly, for arrays, you can allocate memory like this:
+
+```cpp
+int* p = new int[3]{1, 2, 3};
+delete[] p; // Use delete[] for arrays
+```
+
+- **Ownership**: Here, `p` still acts as an owning raw pointer for the allocated array.
+
+#### The Nightmare of Raw Pointers
+
+Using owning raw pointers can lead to significant issues:
+
+```cpp
+int* p = new int(5);
+// some code ...
+delete p; // Memory is freed
+// more code ...
+*p = 7; // Potentially dangerous!
+```
+
+### Common Problems
+
+1. **Dangling Pointers**: If `p` is used after being deleted, it points to invalid memory.
+2. **Memory Leaks**: If you forget to call `delete`, the allocated memory remains inaccessible.
+3. **Double Deletion**: Deleting the same pointer multiple times can cause undefined behavior.
+4. **External Memory**: If `p` points to memory used by other processes, accessing it can lead to crashes.
+
+### Conclusion
+
+- Managing memory manually with raw pointers is error-prone and can lead to hard-to-catch bugs. It is generally recommended to use smart pointers like `std::unique_ptr` or `std::shared_ptr` in C++ to handle memory automatically and reduce the risk of these issues.
+
+### RAII-Based Resource Handling
+
+With RAII, resources are tied to the lifetime of an object:
+
+```cpp
+class DBConnector {
+    DBHandle handle_;
+public:
+    explicit DBConnector(Database& db) : handle_(make_database_connection(db)) {}
+
+    ~DBConnector() { 
+        close_database_connection(handle_); 
+    }
+
+    // Making the connector non-copyable
+    DBConnector(DBConnector const&) = delete;
+    DBConnector& operator=(DBConnector const&) = delete;
+};
+
+void add_to_database(database const& db, std::string_view filename) {
+    DBConnector connector(db);
+    
+    auto f = open_file(filename);
+    // If 'open_file' throws, the destructor for 'connector' is still called,
+    // ensuring the database connection is closed.
+    
+    // Perform operations...
+    
+    // Connection automatically closed when 'connector' goes out of scope
+}
+```
+
+# Smart Pointers 
+## Smart Pointer: `unique_ptr`
+
+`unique_ptr` is a smart pointer introduced in C++11 that manages a dynamically allocated object. It provides automatic memory management and ensures that:
+
+- **Ownership**: Only one `unique_ptr` can own an object at any time.
+- **Automatic Destruction**: When the `unique_ptr` goes out of scope, the associated object is automatically destroyed.
+
+### Basic Usage
+
+```cpp
+#include <memory>
+
+void foo() {
+    std::unique_ptr<int> p = std::make_unique<int>(); // Allocates int on Heap
+    *p = 5; // Use the pointer
+    // No need to manually delete; the int is destroyed automatically!
+}
+```
+
+### Key Features
+
+- **Not Copyable**: You cannot copy a `unique_ptr`. Attempting to do so results in a compile-time error.
+  
+  ```cpp
+  void foo() {
+      auto p1 = std::make_unique<int>();
+      // auto p2 = p1; // ERROR: can't copy
+  }
+  ```
+
+- **Movable**: You can transfer ownership of a `unique_ptr` using `std::move`.
+
+  ```cpp
+  void foo() {
+      auto p1 = std::make_unique<int>();
+      auto p3 = std::move(p1); // p3 now owns the object
+      // p1 is now empty; p3 manages the object
+  }
+  ```
+
+## Implementing a Custom Unique Pointer
+
+### Example: My Smart `unique_ptr`
+
+You can create your own version of a unique pointer by implementing move semantics and proper resource management.
+
+```cpp
+namespace std {
+    class MyIntUniquePtr {
+    public:
+        MyIntUniquePtr(int* ptr = nullptr) : m_ptr(ptr) {}
+        
+        // Destructor
+        ~MyIntUniquePtr() {
+            if (m_ptr) {
+                std::cout << "Free" << std::endl;
+                delete m_ptr; // Free the allocated memory
+            }
+        }
+        // Delete copy constructor and copy assignment operator
+        MyIntUniquePtr(const MyIntUniquePtr&) = delete; // Prevent copying
+        MyIntUniquePtr& operator=(const MyIntUniquePtr&) = delete; // Prevent assignment
+        // Move constructor
+        MyIntUniquePtr(MyIntUniquePtr&& other) noexcept : m_ptr(other.m_ptr) {
+            other.m_ptr = nullptr; // Transfer ownership
+        }
+
+        // Move assignment operator
+        MyIntUniquePtr& operator=(MyIntUniquePtr&& other) noexcept {
+            if (this != &other) {
+                reset(); // Free the current resource
+                m_ptr = other.m_ptr; // Transfer ownership
+                other.m_ptr = nullptr;
+            }
+            return *this;
+        }
+
+        // Reset pointer
+        void reset(int* ptr = nullptr) {
+            if (m_ptr) {
+                delete m_ptr; // Free old memory
+            }
+            m_ptr = ptr; // Assign new pointer
+        }
+
+        // Overloaded dereference operator
+        int& operator*() const {
+            return *m_ptr;
+        }
+
+    private:
+        int* m_ptr; // Raw pointer
+    };
+}
+```
+
