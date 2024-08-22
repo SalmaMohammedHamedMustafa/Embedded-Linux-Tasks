@@ -3011,3 +3011,307 @@ namespace std {
 }
 ```
 
+# template
+
+## 1. Basic Template with Single Argument
+
+```cpp
+template <typename T> 
+T division(T x, T y) { 
+    return x / y; 
+}
+```
+
+- This template function `division` takes two arguments of the same type `T` and returns their division. The template type `T` allows the function to operate on different data types like `int`, `float`, etc.
+
+## 2. Basic Template with Multiple Arguments
+
+```cpp
+template <typename T, typename U> 
+auto division(T x, U y) { 
+    return x / y; 
+}
+```
+
+- This version of the `division` function is a template that can accept two arguments of different types `T` and `U`. The return type is automatically deduced using the `auto` keyword.
+
+## 3. Class Template
+
+```cpp
+template <typename T> 
+class container {
+public:
+    T value;
+    container(T val) : value(val) {}
+    void print() { 
+        std::cout << value << std::endl; 
+    }
+};
+```
+
+- This `container` class is a template class that stores a value of type `T`. It has a constructor that initializes the value and a `print` method to display it.
+
+## 4. Class Template with Standalone Function
+
+```cpp
+template <typename T> 
+class container2 {
+public:
+    T value;
+    container2(T val) : value(val) {}
+    
+    template <typename U> 
+    void add(U val) { 
+        value += val; 
+    }
+    
+    void print() { 
+        std::cout << value << std::endl; 
+    }
+};
+```
+
+- The `container2` class template is similar to `container`, but it includes an `add` method that allows adding a value of type `U` (which can be different from `T`) to the `value`.
+
+## 5. Explicit Specialization
+
+```cpp
+template <> 
+class container<float> {
+public:
+    float value;
+    container(float val) : value(val + 1) {
+        std::cout << "Specialized constructor" << std::endl;
+    }
+};
+```
+
+- This is an explicit specialization of the `container` class template for the type `float`. In this specialized version, the constructor adds `1` to the passed value and prints a message.
+
+## 6. Partial Specialization
+
+```cpp
+template <typename T, typename U> 
+struct array {
+    array(T t, U u) { 
+        std::cout << "Primary template" << std::endl; 
+    }
+};
+
+template <typename T> 
+struct array<T, T> { 
+    array(T t, T u) { 
+        std::cout << "Partial specialization" << std::endl; 
+    }
+};
+```
+
+- The `array` struct template demonstrates partial specialization. The primary template can handle two different types, `T` and `U`. The partially specialized template is used when both types are the same (`T, T`), and it prints a different message.
+
+## 7. Default Template Arguments
+
+```cpp
+template <typename T, typename U = int> 
+class A {
+public:
+    T t;
+    U u;
+    A(T t, U u) : t(t), u(u) {}
+};
+```
+
+- The `A` class template has a default template argument `U`, which defaults to `int` if not specified. This allows for flexibility when creating objects of this class template.
+
+## 8. Const Template Expression
+
+```cpp
+template <typename T, int Size> 
+class MyArray {
+public:
+    T data[Size];
+    MyArray() {
+        for (int i = 0; i < Size; i++) {
+            data[i] = i;
+        }
+    }
+};
+```
+
+- The `MyArray` class template uses a constant expression as a template parameter (`int Size`) to define the size of an internal array. The constructor initializes this array with values from `0` to `Size-1`.
+
+## Main Function
+
+```cpp
+int main() {
+  MyArray<int, 5>arr;
+  A<int> a4(2, 3);              // default
+  A<int, double> a3(2, 3.5);   // explicit
+  array<int, float> a(1, 2.5); // primary
+  array<int, int> a2(1, 2);    // partial
+  container2<int> c3(10);      // auto dedctuion in c++17
+  c3.add<float>(5.5);                 // auto deduction from c++14
+  c3.print();
+
+  std::cout << division(3, 2) << std::endl;
+  std::cout << division(3.5, 2.2) << std::endl;
+  std::cout << division(3.5f, 2.2f) << std::endl;
+  std::cout << division(3.5f, 2) << std::endl;
+
+  container<float> c(15.5);           // specialized constructor
+  container<std::string> c2("Hello"); // class template
+  c2.print();
+  return 0;
+}
+```
+
+- This function tests the templates defined above:
+
+  - `MyArray<int, 5> arr;` creates an `MyArray` object of size `5` with `int` type elements.
+  - `A<int, double> a3(2, 3.5);` creates an `A` object with `int` and `double` types.
+  - `array<int, float> a(1, 2.5);` creates an `array` object with different types, invoking the primary template.
+  - `array<int, int> a2(1, 2);` creates an `array` object with the same types, invoking the partially specialized template.
+  - `container2<int> c3(10);` creates a `container2` object with an initial value of `10`. The `add` method is used to add `5.5` to this value.
+  - Several calls to the `division` function demonstrate the use of templates with different types.
+  - The `container<float> c(15.5);` creates a `container` object with a specialized constructor for `float`.
+  - The `container<std::string> c2("Hello");` creates a `container` object for `std::string` and prints the value.
+
+The image provides an example of a variadic function template in C++. Here's an explanation of the code:
+
+## Variadic Function Template
+
+A variadic template allows a function or a class to accept an arbitrary number of arguments. This feature is especially useful when the number of parameters is not fixed.
+
+#### Function to Print Multiple Arguments (IS it Recursiv؟)
+
+```cpp
+#include <iostream>
+
+// Base case: Function to print a single argument
+template <typename T>
+void print(T arg) {
+    std::cout << arg << " ";
+}
+
+// Recursive case: Function to print multiple arguments
+template <typename T, typename... Args>
+void print(T arg, Args... args) {
+    std::cout << arg << " ";
+    print(args...);  // Recursive call with the remaining arguments
+}
+
+int main() {
+    print(1, 2.5, "hello", 'A');
+    return 0;
+}
+```
+
+- This function template accepts a first argument of type `T` and a parameter pack `Args...`, which can contain any number of additional arguments of varying types.
+- It prints the first argument and then it calls another version of itself with the remaining arguments using the syntax `print(args...)`.
+- The `main` function demonstrates how the `print` function is called with different types of arguments: an `int`, a `double`, a `const char*` (string), and a `char`.
+- The `print` function processes each argument in the list by recursively calling itself until all arguments have been printed.
+
+### How the Variadic Function Works
+
+- The first call to `print(1, 2.5, "hello", 'A')` prints the first argument `1` and then calls `print(2.5, "hello", 'A')`.
+- This process continues, reducing the argument list until only one argument remains, at which point the base case `print(T arg)` is invoked to print the final argument.
+- The result is that all arguments are printed in order, separated by spaces.
+
+The image provides examples of using `std::tuple` and `std::pair` in C++. Here's an explanation of each in Markdown format:
+
+# `std::tuple`
+
+```cpp
+#include <iostream>
+#include <tuple>
+#include <string>
+#include <typeinfo>
+
+int main() {
+    // Creating a tuple
+    // array wih any datatype
+    std::tuple<int, std::string, double> myTuple(42, "Hello", 3.14);
+
+    // Accessing tuple elements using std::get
+    int intValue = std::get<0>(myTuple);
+    std::string stringValue = std::get<1>(myTuple);
+    double doubleValue = std::get<2>(myTuple);
+
+    std::cout << "Tuple elements: " << intValue << ", " << stringValue << ", " << doubleValue << std::endl;
+
+    // Modify tuple elements using std::get and assignment
+    std::get<0>(myTuple) = 100;
+    std::get<2>(myTuple) = 2.71;
+
+    std::cout << "Modified tuple elements: " << std::get<0>(myTuple) << ", " << std::get<1>(myTuple) << ", " << std::get<2>(myTuple) << std::endl;
+
+    // Tuple size using std::tuple_size
+    std::cout << "Tuple size: " << std::tuple_size<decltype(myTuple)>::value << std::endl;
+
+    // Tuple element types using std::tuple_element
+    typedef std::tuple_element<0, decltype(myTuple)>::type firstElementType;
+    typedef std::tuple_element<1, decltype(myTuple)>::type secondElementType;
+    typedef std::tuple_element<2, decltype(myTuple)>::type thirdElementType;
+
+    std::cout << "Tuple element types: " << typeid(firstElementType).name() << ", " 
+              << typeid(secondElementType).name() << ", " << typeid(thirdElementType).name() << std::endl;
+
+    return 0;
+}
+```
+
+### Output Explanation
+
+- **Tuple Creation:** A `std::tuple` is created with three elements: an `int`, a `std::string`, and a `double`.
+- **Element Access:** Elements are accessed using `std::get` with the index of the element.
+- **Element Modification:** Tuple elements can be modified by accessing them through `std::get` and assigning a new value.
+- **Tuple Size:** The size of the tuple is determined using `std::tuple_size`.
+- **Tuple Element Types:** The types of the tuple elements are retrieved using `std::tuple_element` and displayed using `typeid`.
+
+### Expected Output
+
+```
+Tuple elements: 42, Hello, 3.14
+Modified tuple elements: 100, Hello, 2.71
+Tuple size: 3
+Tuple element types: i, NSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE, d
+```
+
+# `std::pair`
+
+
+```cpp
+#include <iostream>
+#include <utility>
+
+int main() {
+    // Creating a pair
+    std::pair<int, std::string> myPair(42, "Hello");
+
+    // Accessing pair elements using member variables
+    int intValue = myPair.first;
+    std::string stringValue = myPair.second;
+
+    std::cout << "Pair elements: " << intValue << ", " << stringValue << std::endl;
+
+    // Modifying pair elements using member variables
+    myPair.first = 100;
+    myPair.second = "World";
+
+    std::cout << "Modified pair elements: " << myPair.first << ", " << myPair.second << std::endl;
+
+    return 0;
+}
+```
+
+### Output Explanation
+
+- **Pair Creation:** A `std::pair` is created with two elements: an `int` and a `std::string`.
+- **Element Access:** Elements are accessed using the member variables `first` and `second`.
+- **Element Modification:** Pair elements can be modified directly through `first` and `second`.
+
+### Expected Output
+
+```
+Pair elements: 42, Hello
+Modified pair elements: 100, World
+```
