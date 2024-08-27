@@ -1385,7 +1385,136 @@ int main() {
 ```
 
 ### functor
-### Conversion
+
+- A functor is an object that can be called as if it were a function.
+
+- Functors are useful for creating objects that can be used in algorithms that require a function object.
+
+- Functors are often used in conjunction with the standard library algorithms.
+
+- Functors are also known as function objects.
+
+### Example
+
+```cpp
+#include <iostream>
+
+class Add {
+public:
+    int operator()(int a, int b) {
+        return a + b;
+    }
+};
+
+int main() {
+    Add add;
+    std::cout << add(3, 4) << std::endl; // 7
+    return 0;
+}
+```
+
+### Another Example
+
+```cpp
+
+#include <iostream>
+
+class GreaterThan {
+public:
+    bool operator()(int a, int b) {
+        return a > b;
+    }
+};
+
+int main() {
+    GreaterThan greater_than;
+    std::cout << greater_than(3, 4) << std::endl; // 0
+    std::cout << greater_than(4, 3) << std::endl; // 1
+    return 0;
+}
+```
+
+### Example with Standard Library
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+class GreaterThan {
+public:
+    bool operator()(int a, int b) {
+        return a > b;
+    }
+};
+
+int main() {
+    std::vector<int> vec = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5};
+    GreaterThan greater_than;
+    std::sort(vec.begin(), vec.end(), greater_than);
+    for (int i = 0; i < vec.size(); i++) {
+        std::cout << vec[i] << " ";
+    }
+    std::cout << std::endl;
+    return 0;
+}
+```
+
+### Advantages of Functors
+
+- Functors can have state, which allows them to maintain information between calls.
+
+- Functors can be used in algorithms that require a function object.
+
+- Functors can be used to create objects that behave like functions.
+
+### Disadvantages of Functors
+
+- Functors can be more complex than regular functions.
+
+- Functors can be harder to understand and maintain.
+
+- Functors can be harder to use in some situations.
+
+## Conversion
+
+- Conversion operators are used to convert an object of one type to another type.
+
+- Conversion operators are defined as member functions of a class.
+
+### Syntax
+
+```cpp
+operator type() {
+    // code
+}
+```
+
+### Example
+
+```cpp
+
+#include <iostream>
+
+class Fraction {
+private:
+    int numerator;
+    int denominator;
+public:
+    Fraction(int n, int d) : numerator(n), denominator(d) {}
+    operator double() {
+        return static_cast<double>(numerator) / denominator;
+    }
+};
+
+int main() {
+    Fraction f(3, 4);
+    double d = f;
+    std::cout << d << std::endl; // 0.75
+    return 0;
+}
+```
+
 
 ## Copy Constructor 
 
