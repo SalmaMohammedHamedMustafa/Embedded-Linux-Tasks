@@ -3444,3 +3444,64 @@ int main() {
 Pair elements: 42, Hello
 Modified pair elements: 100, World
 ```
+
+# threads
+```cpp
+#include <thread>
+#include <iostream>
+
+void fun()
+{
+    std::cout<<"Hello World"<<std::endl;
+}
+
+int main()
+{
+    std::thread t(fun);
+    return 0;
+}
+```
+- what happened is that the main thread of the program is terminated before the thread t has a chance to execute the function fun. 
+- This is because the main thread is the thread that started the program, and when it returns from the main function, the program terminates.
+- The thread t is still running, but it is not allowed to continue.
+- This will cause the program to crash. and we will get core dumped.
+- This is why we need to join the thread t to the main thread.
+ When we join a thread, we wait for it to finish.
+
+ ## join 
+```cpp
+int main()
+{
+    std::thread t(fun);
+    t.join();
+    return 0;
+
+}
+```
+- join is a blocking call, which means that the main thread will wait for the thread t to finish before it continues.
+- This way, we make sure that the thread t has a chance to finish
+
+## detach 
+```cpp
+int main()
+{
+    std::thread t(fun);
+    t.detach();
+    return 0;
+
+}
+```
+
+- detaching a thread is a way to tell the thread that it is allowed to run independently from the main thread of the program.
+- Once a thread is detached, it cannot be joined anymore.
+- This means that we cannot wait for the thread to finish.
+- the main thread can continue without waiting for the thread to finish.
+- This is useful when we don't need the result of the thread.
+- the output of the program is not guaranteed to be the same every time, This is because the main thread and the thread t are running independently.
+- The main thread can finish before the thread t has a chance to execute the function fun.
+- In this case, the program will terminate before the function fun is executed.
+
+## How o see threada in linux?
+```
+ps -auxh | grep <name of excutable>
+```
