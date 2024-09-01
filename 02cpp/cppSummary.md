@@ -3505,3 +3505,385 @@ int main()
 ```
 ps -auxh | grep <name of excutable>
 ```
+
+## thread with arguments
+```cpp
+void fun(std::string print)
+{
+    std::cout<<print<<std::endl;
+}
+
+int main()
+{
+    std::thread t(fun,"print");
+    t.join();
+    return 0;
+}
+```
+- you can pass the arguments to the thread function by using the constructor of the thread class.
+
+## lampda with threads
+```cpp
+int main()
+{
+    std::thread t([]() {
+        std::cout << "Hello from thread" << std::endl;
+    });
+    t.join();
+    return 0;
+}
+```
+
+## sleep/sleep until
+### sleep
+```cpp
+int main()
+{
+    std::cout << "Sleep for 5 seconds" << std::endl;
+    // sleep for 5 seconds
+    sleep(5);
+    std::cout << "Wake up after 5 seconds" << std::endl;
+    return 0;
+}
+```
+### sleep until
+```cpp
+int main()
+{
+    std::cout << "Sleep for 5 seconds" << std::endl;
+    std::chrono::system_clock::time_point wake_up_time = std::chrono::system_clock::now() + std::chrono::seconds(5);
+    std::cout << "Wake up after 5 seconds" << std::endl;
+    return 0;
+}
+```
+## Race condition 
+```cpp
+#include <iostream>
+#include <thread>
+
+int count =0;
+void fun1()
+{
+    for(int i=0;i<1000000;i++)
+    {
+        count++;
+    }
+}
+
+void fun2()
+{
+    for(int i=0;i<1000000;i++)
+    {
+        count++;
+    }
+}
+
+int main()
+{
+    std::thread t1(fun1);
+    std::thread t2(fun2);
+    t1.join();
+    t2.join();
+    std::cout<<count<<std::endl;
+    return 0;
+}
+```
+- the output is not 2000000
+- the output is not deterministic because the two threads are accessing the same variable count at the same time, and the order of execution of the threads is not deterministic
+
+## mutex
+```cpp
+#include <iostream>
+#include <thread>
+#include <mutex>
+
+int count =0;
+std::mutex mu;
+void fun1()
+{
+    mu.lock();
+    for(int i=0;i<1000000;i++)
+    {
+        count++;
+    }
+    mu.unlock();
+}
+
+void fun2()
+{
+    mu.lock();
+    for(int i=0;i<1000000;i++)
+    {
+        count++;
+    }
+    mu.unlock();
+}
+
+int main()
+{
+    std::thread t1(fun1);
+    std::thread t2(fun2);
+    t1.join();
+    t2.join();
+    std::cout<<count<<std::endl;
+    return 0;
+}
+```
+- now the output is 2000000 because we are using mutex to lock the variable count
+we have to lock the variable count before accessing it and unlock it after accessing it so that the other thread can access it
+
+## lock guard 
+```cpp
+#include <iostream>
+#include <thread>
+#include <mutex>
+
+int count =0;
+std::mutex mu;
+void fun1()
+{
+    std::lock_guard<std::mutex> lock(mu);
+    for(int i=0;i<1000000;i++)
+    {
+        count++;
+    }
+}
+
+void fun2()
+{
+   std::lock_guard<std::mutex> lock(mu);
+    for(int i=0;i<1000000;i++)
+    {
+        count++;
+    }
+}
+
+int main()
+{
+    std::thread t1(fun1);
+    std::thread t2(fun2);
+    t1.join();
+    t2.join();
+    std::cout<<count<<std::endl;
+    return 0;
+}
+```
+- lock_guard is a class template, which implements a mutex ownership wrapper. It manages a mutex object
+- with a given policy. The mutex object is automatically released when the lock_guard object is destroyed
+
+## unique_lock
+```cpp
+#include <iostream>
+#include <thread>
+#include <mutex>
+
+int count =0;
+std::mutex mu;
+void fun1()
+{
+    std::unique_lock<std::mutex> lock(mu);
+    for(int i=0;i<1000000;i++)
+    {
+        count++;
+    }
+}
+
+void fun2()
+{
+  std::unique_lock<std::mutex> lock(mu);    
+    for(int i=0;i<1000000;i++)
+    {
+        count++;
+    }
+}
+
+int main()
+{
+    std::thread t1(fun1);
+    std::thread t2(fun2);
+    t1.join();
+    t2.join();
+    std::cout<<count<<std::endl;
+    return 0;
+}
+```
+- unique_lock is a class template, which provides a more flexible lock ownership mechanism than lock_guard.
+- you can unlock it and lock it again manually
+
+## Variable condition 
+- Used to block one or more threads until a particular condition is met.
+```cpp
+#include <iostream>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
+
+// Global variables
+std::condition_variable cv;
+std::mutex cv_mtx;
+bool ready = false;
+
+// Worker thread function
+void worker() {
+    std::unique_lock<std::mutex> lock(cv_mtx);
+    cv.wait(lock, [] { return ready; });
+    std::cout << "Worker thread is processing" << std::endl;
+}
+
+// Giver thread function
+void giver() {
+    std::lock_guard<std::mutex> lock(cv_mtx);
+    ready = true;
+    cv.notify_one();
+}
+
+// Main function
+int main() {
+    std::thread t(worker);
+    std::thread t2(giver);
+    
+    t.join();
+    t2.join();
+    
+    return 0;
+}
+```
+
+### Code Breakdown
+
+####  Worker Function
+
+
+- **Purpose**: The worker thread waits until the `ready` flag is set to `true`.
+- **Steps**:
+  1. Acquires the mutex `cv_mtx` using `std::unique_lock`.
+  2. Calls `cv.wait(lock, [] { return ready; });` to wait for the `ready` flag to become `true`.
+  3. Once `ready` is `true`, prints `"Worker thread is processing"`.
+
+#### Giver Function
+
+
+- **Purpose**: The giver thread sets the `ready` flag and notifies the worker thread to proceed.
+- **Steps**:
+  1. Acquires the mutex `cv_mtx` using `std::lock_guard`.
+  2. Sets the `ready` flag to `true`.
+  3. Calls `cv.notify_one();` to notify the worker thread that it can proceed.
+#### How It Works
+
+1. The `worker` thread starts and locks the mutex `cv_mtx`.
+2. The `worker` thread calls `cv.wait(lock, [] { return ready; });` and waits for the `ready` flag to become `true`.
+3. Meanwhile, the `giver` thread starts, locks the mutex `cv_mtx`, sets `ready = true`, and calls `cv.notify_one();` to wake up the `worker` thread.
+4. The `worker` thread resumes, prints `"Worker thread is processing"`, and the program eventually ends.
+
+## promise /future 
+```cpp
+#include <iostream>
+#include <thread>
+#include <future>
+
+using namespace std;
+
+void findOdd(std::promise<unsigned long long>& OddSumPromise, unsigned long long start, unsigned long long end) {
+    unsigned long long OddSum = 0;
+    for (unsigned long long i = start; i <= end; ++i) {
+        if (i % 2 != 0) {
+            OddSum += i;
+        }
+    }
+    OddSumPromise.set_value(OddSum);
+}
+
+int main() {
+    unsigned long long start = 0;
+    unsigned long long end = 1900000000;
+    // promise is used to store the value that will be available in the future
+    std::promise<unsigned long long> OddSum;
+    // future is used to get the value stored in the promise
+    std::future<unsigned long long> OddFuture = OddSum.get_future();
+
+    cout << "Thread Created!!" << endl;
+    std::thread t1(findOdd, std::ref(OddSum), start, end);
+    
+    cout << "Waiting For Result!!" << endl;
+    // get the value stored in the promise
+    cout << "OddSum = " << OddFuture.get() << endl;
+    
+    cout << "Completed!!" << endl;
+    t1.join();
+
+    return 0;
+}
+```
+
+- promise is used to store a value that will be available in the future
+- future is used to get the value stored in the promise
+- promise and future are used to communicate between two threads
+- if the thread is not completed then future.get() will wait until the thread is completed
+- if the main thread asked for the value after the thread is completed then future.get() will return the value immediately
+
+## thread return
+### packaged_task
+```cpp
+#include <iostream>
+#include <thread>
+#include <future>
+
+int calculateSum(int a, int b) {
+    return a + b;
+}
+
+int main() {
+    // Create a packaged_task that wraps the calculateSum function
+    std::packaged_task<int(int, int)> task(calculateSum);
+
+    // Get a future object associated with the task
+    std::future<int> f = task.get_future();
+
+    // Launch the task in a separate thread
+    std::thread t(std::move(task), 2, 3); // Passing arguments to the function
+
+    // Wait for the thread to finish
+    t.join();
+
+    std::cout << "Waiting for the result..." << std::endl;
+
+    // Get the result from the future
+    std::cout << f.get() << std::endl; // Outputs the result of calculateSum
+    return 0;
+}
+```
+- thread return is usful when we want to return a value from a function that is running in a separate thread.
+- The std::packaged_task class is a wrapper for a function that can be executed asynchronously. It is a template class that takes the function signature as a template parameter.
+- More verbose and requires understanding of both threading and futures.
+- More flexible for complex scenarios where detailed control over thread behavior is required.
+
+
+### async 
+```cpp
+#include <iostream>
+#include <future>
+#include <chrono>
+#include <thread>
+
+int add(int a, int b) {
+    std::cout << "add function is called" << std::endl;
+    return a + b;
+}
+
+int main() {
+    // Start a task asynchronously
+    std::future<int> future_result = std::async(add, 5, 3);
+
+    // Simulate doing other work
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    std::cout << "will call get" << std::endl;
+
+    // Get the result when needed
+    int result = future_result.get();
+
+    std::cout << "The result is: " << result << std::endl;
+    return 0;
+}
+```
+- Simpler and more straightforward to use for running tasks asynchronously.
+- Less code is needed to achieve the same result.
